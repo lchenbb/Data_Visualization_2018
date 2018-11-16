@@ -23,7 +23,7 @@
   <script>
 
   // initialize the map
-  var map = L.map('map').setView([42.35, -71.08], 13);
+  var map = L.map('map').setView([34, -120], 13);
 
   // load a tile layer
   L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
@@ -33,8 +33,8 @@
       subdomains:['mt0','mt1','mt2','mt3']
     }).addTo(map);
 
-  //var geoJsonLayer = new L.GeoJSON.AJAX("test.geojson")
-  //geoJsonLayer.addTo(map);
+  var geoJsonLayer = new L.GeoJSON.AJAX("zone.geojson")
+  geoJsonLayer.addTo(map);
 
   </script>
 </body>

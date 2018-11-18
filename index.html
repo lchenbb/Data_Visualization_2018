@@ -57,6 +57,21 @@
             }
         ).addTo(map);
 
+    var test = L.leafletGeotiff(
+            url='tif/output.tif',
+            options={
+                band: 0,
+                displayMin: 0,
+                displayMax: 30,
+                name: 'test',
+                colorScale: 'rainbow',
+                clampLow: false,
+                clampHigh: true,
+                //vector:true,
+                arrowSize: 20,
+            }
+        ).addTo(map);
+
   </script>
 </body>
 </html>

@@ -69,7 +69,6 @@
         });
 
         var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "Stamen Toner": toner, "Without background": white}
-        //var layermaps = {"Baseflow for historical climate": lyr1, "Flow retention for historical climate": lyr2}
 
         // Title
         var title = L.control();
@@ -122,7 +121,7 @@
           return this._div;
         };
         gradient.update = function(props) {
-          this._div.innerHTML = "<img src= \"images/firstGradient.png\" width=\"200\"/>";
+          this._div.innerHTML = "<img src= \"images/firstGradient.PNG\" width=\"200\"/>";
         }
         gradient.addTo(map);
 

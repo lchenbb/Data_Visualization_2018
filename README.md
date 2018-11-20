@@ -1,4 +1,4 @@
-# Data_Viz_2018
+# Data Viz 2018
 
 Change projection
 `gdalwarp infile.tif outfile.tif -t_srs "+proj=longlat +ellps=WGS84"`

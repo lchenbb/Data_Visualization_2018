@@ -8,6 +8,7 @@
             <!-- Leaflet -->
             <link rel="stylesheet" href="css/leaflet.css" />
             <script src="lib/leaflet.js"></script>
+            <script src="lib/leaflet.groupedlayercontrol.min.js"></script>
 
             <style>
                 body { margin:0; padding:0; }
@@ -54,6 +55,7 @@
         var white = L.tileLayer("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAH0lEQVQYGe3BAQ0AAADCIPunfg43YAAAAAAAAAAA5wIhAAAB9aK9BAAAAABJRU5ErkJggg==");
 
         // Overlay layers (TMS)
+        // Add here the new layouts
         var lyr1 = L.tileLayer('data/B_historical_change/{z}/{x}/{y}.png', {tms: true, opacity: 0.8, attribution: ""});
         var lyr2 = L.tileLayer('data/B_flow_retention/{z}/{x}/{y}.png', {tms: true, opacity: 0.8, attribution: ""});
 
@@ -67,7 +69,7 @@
         });
 
         var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "Stamen Toner": toner, "Without background": white}
-        var layermaps = {"Baseflow for historical climate": lyr1, "Flow retention for historical climate": lyr2}
+        //var layermaps = {"Baseflow for historical climate": lyr1, "Flow retention for historical climate": lyr2}
 
         // Title
         var title = L.control();
@@ -94,12 +96,35 @@
         };
         title.addTo(map);
 
+        var groupedOverlays = {
+          "Data":{
+              "Baseflow for historical climate": lyr1,
+              "Flow retention for historical climate": lyr2
+          }
+        };
 
-        // Add base layers
-        L.control.layers(basemaps, null, {collapsed: false}).addTo(map);
+        var options = {
+          // Make the "Landmarks" group exclusive (use radio inputs)
+          exclusiveGroups: ["Data"],
+          // Show a checkbox next to non-exclusive group labels for toggling all
+          groupCheckboxes: true
+        };
 
-        // Add map layers
-        L.control.layers(layermaps, null, {collapsed: false}).addTo(map);
+         // Use the custom grouped layer control, not "L.control.layers"
+        var layerControl = L.control.groupedLayers(basemaps, groupedOverlays, options);
+        map.addControl(layerControl);
+        // End of switcher control.
+
+        var gradient = L.control();
+        gradient.onAdd = function(map) {
+          this._div = L.DomUtil.create('div', 'ctl gradient');
+          this.update();
+          return this._div;
+        };
+        gradient.update = function(props) {
+          this._div.innerHTML = "<img src= \"images/firstGradient.png\" width=\"200\"/>";
+        }
+        gradient.addTo(map);
 
         // Fit to overlay bounds (SW and NE points with (lat, lon))
         map.fitBounds([[9.92035336588, 101.633885799], [28.5669647084, 92.1384540862]]);
@@ -108,5 +133,3 @@
 
         </body>
         </html>
-
-        

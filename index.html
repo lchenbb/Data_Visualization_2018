@@ -10,6 +10,12 @@
             <script src="lib/leaflet.js"></script>
             <script src="lib/leaflet.groupedlayercontrol.min.js"></script>
 
+            <!-- Seems to have contradiction with groupedlayercontrol
+            <link href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css'
+           rel='stylesheet' type='text/css'/>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet-src.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.9/d3.min.js"></script>
+            -->
             <style>
                 body { margin:0; padding:0; }
                 body, table, tr, td, th, div, h1, h2, input { font-family: "Calibri", "Trebuchet MS", "Ubuntu", Serif; font-size: 11pt; }
@@ -34,8 +40,10 @@
 
         </head>
         <body>
-
+        <script src='lib/topojson.min.js'></script>
+        <script src="lib/d3.min.js"></script>
         <div id="map"></div>
+
 
         <script>
 
@@ -43,6 +51,7 @@
 
         // Base layers
         //  .. OpenStreetMap
+        d3.geoPath();
         var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'});
 
         //  .. CartoDB Positron
@@ -128,6 +137,82 @@
         // Fit to overlay bounds (SW and NE points with (lat, lon))
         map.fitBounds([[9.92035336588, 101.633885799], [28.5669647084, 92.1384540862]]);
 
+
+        // Add canton border to the map
+        let svg = d3.select(map.getPanes().overlayPane).append('svg').attr('id', 'svg');
+
+        let g = svg.append('g').attr('class', 'leaflet-zoom-hide');
+
+        // Map promise
+        const map_promise = d3.json('map/MYANMAR_GEOJSON.json').then(x => x);
+
+        // Define project point function
+        function project_point(x, y){
+            let point = map.latLngToLayerPoint(new L.LatLng(y, x));
+            this.stream.point(point.x, point.y);
+        }
+        
+        let transform = d3.geoTransform({point: project_point});
+        let gen_path = d3.geoPath().projection(transform);
+        Promise.all([map_promise]).then((results) => {
+            console.log(results);
+            let feature = g.selectAll('path')
+                            .data(results[0].features)
+                            .enter()
+                                .append('path')
+            feature.attr('d', gen_path)
+                    .attr('fill-opacity', 0)
+                    .attr('postion', 'relative')
+                    .attr('stroke', 'green')
+                    .attr('stroke-width', 2)
+                    .attr('stroke-opacity', 0.5)
+                    .on('mousedown.log', (d) => console.log(d.properties['NAME_1']));
+
+            let bounds = gen_path.bounds(results[0]);
+            let top_left = bounds[0];
+            let bottom_right = bounds[1];
+
+            svg.attr('width', bottom_right[0] - top_left[0])
+                .attr('height', bottom_right[1] - top_left[1])
+                .style('left', top_left[0] + 'px')
+                .style('top', top_left[1] + 'px');
+
+            g.attr('transform', 'translate(' + -top_left[0] + ',' + -top_left[1] + ')');
+
+
+            map.on('moveend', () => { 
+                bounds = gen_path.bounds(results[0]);
+                top_left = bounds[0];
+                bottom_right = bounds[1];
+                svg.attr('width', bottom_right[0] - top_left[0])
+                    .attr('height', bottom_right[1] - top_left[1])
+                    .style('left', top_left[0] + 'px')
+                    .style('top', top_left[1] + 'px');
+
+                g.attr('transform', 'translate(' + -top_left[0] + ',' + -top_left[1] + ')');
+                feature.attr('d', gen_path);
+            });
+
+        });
+        
+        /* Alternative solution 
+        var countries = [];
+        var countriesOverlay = L.d3SvgOverlay(function(sel, proj) {
+            
+          var upd = sel.selectAll('path').data(countries);
+          upd.enter()
+            .append('path')
+            .attr('d', proj.pathFromGeojson)
+            .attr('stroke', 'black')
+            .attr('fill', function(){ return d3.hsl(Math.random() * 360, 0.9, 0.5) })
+            .attr('fill-opacity', '0.5');
+          upd.attr('stroke-width', 1 / proj.scale);
+        });
+
+        //L.control.layers({"Geo Tiles": tiles}, {"Countries": countriesOverlay}).addTo(map);
+
+        d3.json("map/MYANMAR_GEOJSON.json", function(data) { countries = data.features[0]; countriesOverlay.addTo(map) });
+        */
         </script>
 
         </body>

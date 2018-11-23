@@ -157,11 +157,6 @@
 
         var statsInfo = L.control({position: 'bottomright'});
 
-        function toggleStats() {
-          var div = document.getElementById("info stats")
-          div.innerHTML = "<h2>Stats extended</h2>";
-        }
-
         statsInfo.onAdd = function (map) {
           var div = L.DomUtil.create('div', 'ctl');
           div.innerHTML = "<p> \
@@ -172,7 +167,6 @@
                                <li> Median = value </li>\
                              </ul>\
                            </p>";
-          div.setAttribute("onclick", "toggleStats()");
           div.id = "info stats";
 
           return div;
@@ -240,18 +234,7 @@
             });
 
         });
-
-        length = 100;
-        color = d3.scaleLinear().domain([1, length])
-                .interpolate(d3.interpolateHcl)
-                .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
-
-        for (var i = 0; i < length; i++) {
-          svg.append('div').attr('style', function (d) {
-            return 'background-color: ' + color(i);
-          });
-        }
-
+        
         /* Alternative solution
         var countries = [];
         var countriesOverlay = L.d3SvgOverlay(function(sel, proj) {

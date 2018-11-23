@@ -192,6 +192,8 @@
             this.stream.point(point.x, point.y);
         }
 
+        let canton = null
+
         let transform = d3.geoTransform({point: project_point});
         let gen_path = d3.geoPath().projection(transform);
         Promise.all([map_promise]).then((results) => {
@@ -206,7 +208,7 @@
                     .attr('stroke', 'green')
                     .attr('stroke-width', 2)
                     .attr('stroke-opacity', 0.5)
-                    .on('mousedown.log', (d) => console.log(d.properties['NAME_1']));
+                    .on('mousedown.log', (d) => {canton = d.properties['NAME_1']; console.log(d.properties['NAME_1'])});
 
             let bounds = gen_path.bounds(results[0]);
             let top_left = bounds[0];
@@ -233,6 +235,38 @@
                 feature.attr('d', gen_path);
             });
 
+        });
+
+
+        var popup = L.popup();
+        // Response to the mouse click
+        map.on('click', function(e) {
+            // alert("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng)
+
+            var xhr = new XMLHttpRequest();
+            var url = "http://127.0.0.1:5000/";
+            var data = {'lat': e.latlng.lat, 'lin': e.latlng.lng};
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // do something with response
+                    if (canton != null){
+                        popup.setLatLng(e.latlng)
+                        .setContent("Position " + e.latlng.toString() + '\nCanton is ' + canton.toString() + '\nValue is ' + xhr.responseText.toString())
+                        .openOn(map)
+                        canton = null
+                    }
+                    else {
+                        popup.setLatLng(e.latlng)
+                        .setContent("Position " + e.latlng.toString() + '\nValue is ' + xhr.responseText.toString())
+                        .openOn(map)
+                    }
+                    console.log(popup)
+                    console.log(xhr.responseText);
+                }
+            };
+            xhr.send(JSON.stringify(data));
         });
         
         /* Alternative solution

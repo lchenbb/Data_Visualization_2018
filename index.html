@@ -46,6 +46,7 @@
           <script src='lib/topojson.min.js'></script>
           <script src="lib/d3.min.js"></script>
           <script src="lib/leaflet-sidebar.js"></script>
+          <script src="lib/jquery-3.3.1.min.js"></script>
           <div id="sidebar" class="sidebar collapsed">
             <!-- Nav tabs -->
             <div class="sidebar-tabs">
@@ -156,20 +157,23 @@
         // End of switcher control.
 
         var statsInfo = L.control({position: 'bottomright'});
+        let mean = " ";
+        let std = " ";
+        let median = " ";
 
         statsInfo.onAdd = function (map) {
-          var div = L.DomUtil.create('div', 'ctl');
-          div.innerHTML = "<p> \
+        var div = L.DomUtil.create('div', 'ctl');
+        div.innerHTML = "<p> \
                             <h1 align=\"left\">Statistics</h1>\
                             <ul align = \"left\">\
-                               <li> Mean = value </li>\
-                               <li> Standard deviation = value </li>\
-                               <li> Median = value </li>\
+                               <li> Mean = " + mean + " </li>\
+                               <li> Standard deviation = " + std + " </li>\
+                               <li> Median = " + median + " </li>\
                              </ul>\
                            </p>";
-          div.id = "info stats";
+        div.id = "info stats";
 
-          return div;
+        return div;
         };
         statsInfo.addTo(map);
 
@@ -192,11 +196,17 @@
             this.stream.point(point.x, point.y);
         }
 
-        let canton = null
+        let canton = null;
+        // load json
+        // var json_ = $.getJSON('data/stat.json'); 
+        const stat = d3.json("./data/stat.json").then(d => d);
+        console.log(stat);
+
+        // let stat = $.parseJSON(json_);
 
         let transform = d3.geoTransform({point: project_point});
         let gen_path = d3.geoPath().projection(transform);
-        Promise.all([map_promise]).then((results) => {
+        Promise.all([map_promise, stat]).then((results) => {
             console.log(results);
             let feature = g.selectAll('path')
                             .data(results[0].features)
@@ -208,7 +218,27 @@
                     .attr('stroke', 'green')
                     .attr('stroke-width', 2)
                     .attr('stroke-opacity', 0.5)
-                    .on('mousedown.log', (d) => {canton = d.properties['NAME_1']; console.log(d.properties['NAME_1'])});
+                    .on('mousedown.log', (d) => {
+
+                        // Set the canton
+                        canton = d.properties['NAME_1'];
+                        console.log(d.properties['NAME_1']);
+
+                        // Set mean, std, and median
+                        mean = results[1]['mean'][canton];
+                        std = results[1]['std'][canton];
+                        median = results[1]['median'][canton];
+                        console.log(mean);
+                        let div_ = document.getElementById('info stats');
+                        div_.innerHTML = "<p> \
+                            <h1 align=\"left\">" + canton.toString() + " Statistics</h1>\
+                            <ul align = \"left\">\
+                               <li> Mean = " + mean.toString().substring(0,5) + " </li>\
+                               <li> Standard deviation = " + std.toString().substring(0,5) + " </li>\
+                               <li> Median = " + median.toString().substring(0,5) + " </li>\
+                             </ul>\
+                           </p>";
+                    });
 
             let bounds = gen_path.bounds(results[0]);
             let top_left = bounds[0];

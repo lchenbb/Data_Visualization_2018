@@ -9,3 +9,5 @@ Change color map
 Generates html/css javascript
 `gdal2tiles.py out.tif`
 
+Put cleaned data `v3.csv` in the folder `py_server` from google drive
+

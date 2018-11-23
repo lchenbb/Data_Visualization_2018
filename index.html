@@ -7,6 +7,9 @@
 
             <!-- Leaflet -->
             <link rel="stylesheet" href="css/leaflet.css" />
+            <link rel="stylesheet" href="css/leaflet-sidebar.css" />
+            <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
             <script src="lib/leaflet.js"></script>
             <script src="lib/leaflet.groupedlayercontrol.min.js"></script>
 
@@ -40,10 +43,39 @@
 
         </head>
         <body>
-        <script src='lib/topojson.min.js'></script>
-        <script src="lib/d3.min.js"></script>
-        <div id="map"></div>
+          <script src='lib/topojson.min.js'></script>
+          <script src="lib/d3.min.js"></script>
+          <script src="lib/leaflet-sidebar.js"></script>
+          <div id="sidebar" class="sidebar collapsed">
+            <!-- Nav tabs -->
+            <div class="sidebar-tabs">
+                <ul role="tablist">
+                    <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+                </ul>
 
+                <ul role="tablist">
+                    <li><a href="#settings" role="tab"><i class="fa fa-cog"></i></a></li>
+                </ul>
+            </div>
+
+            <!-- Tab panes -->
+            <div class="sidebar-content">
+                <div class="sidebar-pane" id="home">
+                    <h1 class="sidebar-header">
+                        Control panel
+                        <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                    </h1>
+
+                    <p>This panel should contain the control views</p>
+
+                </div>
+
+                <div class="sidebar-pane" id="settings">
+                    <h1 class="sidebar-header">Settings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+                </div>
+            </div>
+          </div>
+          <div id="map" class="sidebar-map"></div>
 
         <script>
 
@@ -123,20 +155,34 @@
         map.addControl(layerControl);
         // End of switcher control.
 
-        var gradient = L.control();
-        gradient.onAdd = function(map) {
-          this._div = L.DomUtil.create('div', 'ctl gradient');
-          this.update();
-          return this._div;
-        };
-        gradient.update = function(props) {
-          this._div.innerHTML = "<img src= \"images/firstGradient.PNG\" width=\"200\"/>";
+        var statsInfo = L.control({position: 'bottomright'});
+
+        function toggleStats() {
+          var div = document.getElementById("info stats")
+          div.innerHTML = "<h2>Stats extended</h2>";
         }
-        gradient.addTo(map);
+
+        statsInfo.onAdd = function (map) {
+          var div = L.DomUtil.create('div', 'ctl');
+          div.innerHTML = "<p> \
+                            <h1 align=\"left\">Statistics</h1>\
+                            <ul align = \"left\">\
+                               <li> Mean = value </li>\
+                               <li> Standard deviation = value </li>\
+                               <li> Median = value </li>\
+                             </ul>\
+                           </p>";
+          div.setAttribute("onclick", "toggleStats()");
+          div.id = "info stats";
+
+          return div;
+        };
+        statsInfo.addTo(map);
+
+        var sidebar = L.control.sidebar('sidebar').addTo(map);
 
         // Fit to overlay bounds (SW and NE points with (lat, lon))
         map.fitBounds([[9.92035336588, 101.633885799], [28.5669647084, 92.1384540862]]);
-
 
         // Add canton border to the map
         let svg = d3.select(map.getPanes().overlayPane).append('svg').attr('id', 'svg');
@@ -151,7 +197,7 @@
             let point = map.latLngToLayerPoint(new L.LatLng(y, x));
             this.stream.point(point.x, point.y);
         }
-        
+
         let transform = d3.geoTransform({point: project_point});
         let gen_path = d3.geoPath().projection(transform);
         Promise.all([map_promise]).then((results) => {
@@ -180,7 +226,7 @@
             g.attr('transform', 'translate(' + -top_left[0] + ',' + -top_left[1] + ')');
 
 
-            map.on('moveend', () => { 
+            map.on('moveend', () => {
                 bounds = gen_path.bounds(results[0]);
                 top_left = bounds[0];
                 bottom_right = bounds[1];
@@ -194,11 +240,22 @@
             });
 
         });
-        
-        /* Alternative solution 
+
+        length = 100;
+        color = d3.scaleLinear().domain([1, length])
+                .interpolate(d3.interpolateHcl)
+                .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+
+        for (var i = 0; i < length; i++) {
+          svg.append('div').attr('style', function (d) {
+            return 'background-color: ' + color(i);
+          });
+        }
+
+        /* Alternative solution
         var countries = [];
         var countriesOverlay = L.d3SvgOverlay(function(sel, proj) {
-            
+
           var upd = sel.selectAll('path').data(countries);
           upd.enter()
             .append('path')

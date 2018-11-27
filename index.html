@@ -275,7 +275,8 @@
 	    console.log("wait for server");
 
             var xhr = new XMLHttpRequest();
-            var url = "https://35.227.96.117:5000/";
+            // var url = "https://35.227.96.117:5000/";
+	    var url = "https://10.142.0.2:5000/";
             var data = {'lat': e.latlng.lat, 'lin': e.latlng.lng};
             xhr.open("POST", url, true);
             xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");

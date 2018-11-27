@@ -271,7 +271,8 @@
         var popup = L.popup();
         // Response to the mouse click
         map.on('click', function(e) {
-            // alert("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng)
+            alert("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
+	    console.log("wait for server");
 
             var xhr = new XMLHttpRequest();
             var url = "http://35.227.96.117:5000/";

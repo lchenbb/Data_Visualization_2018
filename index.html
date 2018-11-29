@@ -15,13 +15,6 @@
             <script src="lib/leaflet.groupedlayercontrol.min.js"></script>
             <script src="src/colorMapLegend.js"></script>
 
-
-            <!-- Seems to have contradiction with groupedlayercontrol
-            <link href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css'
-           rel='stylesheet' type='text/css'/>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet-src.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.9/d3.min.js"></script>
-            -->
             <style>
                 body { margin:0; padding:0; }
                 body, table, tr, td, th, div, h1, h2, input { font-family: "Calibri", "Trebuchet MS", "Ubuntu", Serif; font-size: 11pt; }
@@ -50,8 +43,8 @@
           <script src="lib/d3.min.js"></script>
           <script src="lib/leaflet-sidebar.js"></script>
           <script src="lib/jquery-3.3.1.min.js"></script>
-          
-          <div id="sidebar" class="sidebar collapsed">
+
+          <div id="sidebar" class="sidebar collapsed" name="sidebarName">
             <!-- Nav tabs -->
             <div class="sidebar-tabs">
                 <ul role="tablist">
@@ -71,14 +64,15 @@
                         <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
                     </h1>
                     <h1> Data </h1>
-                    <input type="radio" name="data1" value="BaseFlow"> BaseFlow for historical climate <br>
-                    <input type="radio" name="data1" value="FlowRetention"> Flow retention for historical climate </br>
-                    <input type="radio" name="data1" value="FlowRetention"> Nothing </br>
-
+                    <input type="radio" name="myRadios" value="lyr1"> BaseFlow for historical climate <br>
+                    <input type="radio" name="myRadios" value="lyr2"> Flow retention for historical climate </br>
+                    <input type="radio" name="myRadios" value="null"> Nothing </br>
                 </div>
 
                 <div class="sidebar-pane" id="settings">
                     <h1 class="sidebar-header">Settings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+                    <h1>Hide/Show statistics</h1>
+                    <input type="checkbox" id="hideStats" value="0">Hide statistics<br>
                 </div>
             </div>
           </div>
@@ -113,10 +107,42 @@
             zoom: 9,
             minZoom: 4,
             maxZoom: 9,
-            layers: [osm, lyr1]
+            layers: [osm]
         });
 
-        var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "Stamen Toner": toner, "Without background": white}
+        // Declare radiobuttons listeners
+        let radioButtons = document.getElementsByName("myRadios");
+        radioButtons[0].checked = true;
+        let prev = {
+          value: "lyr1"
+        };
+        map.addLayer(lyr1);
+        let currentLayer = eval(prev.value);
+
+        for(var i = 0; i < radioButtons.length; i++) {
+          radioButtons[i].addEventListener('change', function() {
+            if(this.value !== "null") {
+              if(currentLayer !== undefined) {
+                map.removeLayer(eval(prev.value));
+              }
+                            console.log("here");
+              prev = this;
+              currentLayer = eval(this.value);
+              map.addLayer(currentLayer);
+              currentLayer.bringToFront();
+            }
+            if(this.value === "null") {
+              map.removeLayer(currentLayer);
+              currentLayer = undefined;
+            }
+          });
+        }
+
+        var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "Stamen Toner": toner, "Without background": white};
+
+        map.on('baselayerchange', function(e) {
+          currentLayer.bringToFront();
+        });
 
         // Title
         var title = L.control();
@@ -143,23 +169,8 @@
         };
         title.addTo(map);
 
-        var groupedOverlays = {
-          "Data":{
-              "Baseflow for historical climate": lyr1,
-              "Flow retention for historical climate": lyr2
-          }
-        };
-
-        var options = {
-          // Make the "Landmarks" group exclusive (use radio inputs)
-          exclusiveGroups: ["Data"],
-          // Show a checkbox next to non-exclusive group labels for toggling all
-          groupCheckboxes: true
-        };
-
          // Use the custom grouped layer control, not "L.control.layers"
-        var layerControl = L.control.groupedLayers(basemaps, groupedOverlays, options);
-        map.addControl(layerControl);
+        L.control.layers(basemaps, null).addTo(map);
 
         // Remove the stupid leaflet copyright from bottom right
 
@@ -382,6 +393,18 @@
                 }
             };
             xhr.send(JSON.stringify(data));
+        });
+
+        // Declare checkbox listeners
+        let checkboxHideStats = document.getElementById("hideStats");
+        checkboxHideStats.addEventListener('change', () => {
+          if(checkboxHideStats.checked) {
+            // hide stats;
+            stat_svg.attr("visibility", "hidden");
+          } else {
+            // show stats
+            stat_svg.attr("visibility", "visible");
+          }
         });
 
         // Fit to overlay bounds (SW and NE points with (lat, lon))

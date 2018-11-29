@@ -13,6 +13,8 @@
 
             <script src="lib/leaflet.js"></script>
             <script src="lib/leaflet.groupedlayercontrol.min.js"></script>
+            <script src="src/colorMapLegend.js"></script>
+
 
             <!-- Seems to have contradiction with groupedlayercontrol
             <link href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css'
@@ -48,6 +50,7 @@
           <script src="lib/d3.min.js"></script>
           <script src="lib/leaflet-sidebar.js"></script>
           <script src="lib/jquery-3.3.1.min.js"></script>
+          
           <div id="sidebar" class="sidebar collapsed">
             <!-- Nav tabs -->
             <div class="sidebar-tabs">
@@ -67,8 +70,10 @@
                         Control panel
                         <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
                     </h1>
-
-                    <p>This panel should contain the control views</p>
+                    <h1> Data </h1>
+                    <input type="radio" name="data1" value="BaseFlow"> BaseFlow for historical climate <br>
+                    <input type="radio" name="data1" value="FlowRetention"> Flow retention for historical climate </br>
+                    <input type="radio" name="data1" value="FlowRetention"> Nothing </br>
 
                 </div>
 
@@ -156,18 +161,18 @@
         var layerControl = L.control.groupedLayers(basemaps, groupedOverlays, options);
         map.addControl(layerControl);
 
-        // Remove the stupid leaflet copyright from bottom right 
-        
+        // Remove the stupid leaflet copyright from bottom right
+
         let stupid_element = document.querySelector('.leaflet-control-attribution.leaflet-control');
-        stupid_element.parentNode.removeChild(stupid_element); 
-        
+        stupid_element.parentNode.removeChild(stupid_element);
+
         // End of switcher control.
 
-        var statsInfo = L.control({position: 'bottomright'});
-
+        var sidebar = L.control.sidebar('sidebar').addTo(map);
 
         // Initialization of statistics plotting
-        const height = 300;
+        const height_stat = 300;
+        const height_total = 400;
         const width = 400;
         const margin = {
             top: 30,
@@ -180,34 +185,31 @@
         stat_svg = d3.select('.leaflet-bottom.leaflet-right')
                         .append('svg')
                         .attr('width', width + margin.left + margin.right)
-                        .attr('height', height + margin.top + margin.bottom);
+                        .attr('height', height_total + margin.top + margin.bottom);
 
         // Build a background rect
         back_rect = stat_svg.append('rect')
                                 .attr('width', width + margin.left + margin.right)
-                                .attr('height', height + margin.top + margin.bottom)
+                                .attr('height', height_total + margin.top + margin.bottom)
                                 .attr('fill', 'white')
                                 .attr('opacity', 0.4);
-        
+
         // Add statistics name
         stat_svg.append('text')
-                .text('Hello world')
+                .text('Statistics')
                 .attr('fill', 'black')
                 .attr('font-size', 25)
-                .attr('transform', 'translate(10, 20)');
+                .attr('transform', 'translate(10, 120)');
+
+        createD3LegendBox(stat_svg);
 
         // Add province name group
         let prov_name_g = stat_svg.append('g')
-                                    .attr('transform', 'translate(' + (margin.left + width - 20) + ',20)')
+                                    .attr('transform', 'translate(' + (margin.left + width - 20) + ',50)')
                                     .attr('width', 20 + margin.right);
-        var sidebar = L.control.sidebar('sidebar').addTo(map);
-
-        // Fit to overlay bounds (SW and NE points with (lat, lon))
-        map.fitBounds([[9.92035336588, 101.633885799], [28.5669647084, 92.1384540862]]);
 
         // Add canton border to the map
         let svg = d3.select(map.getPanes().overlayPane).append('svg').attr('id', 'svg');
-
         let g = svg.append('g').attr('class', 'leaflet-zoom-hide');
 
         // Map promise
@@ -221,7 +223,7 @@
 
         let canton = null;
         // load json
-        // var json_ = $.getJSON('data/stat.json'); 
+        // var json_ = $.getJSON('data/stat.json');
         let stat = d3.json("./data/stat.json").then(d => d);
 
         // load statistics json
@@ -255,7 +257,7 @@
                         stat_results = results[1];
                         let bins = stat_results['bins'][canton];
                         let counts = stat_results['full_disc_data_counts'][canton];
- 
+
                         let max_count = Math.max.apply(Math, counts);
 
                         // Build bin-count dict
@@ -264,7 +266,7 @@
                         // construct x y scale
                         let y_scale = d3.scaleLinear()
                                                 .domain([0, max_count])
-                                                .range([height, 0]);
+                                                .range([height_stat, 0]);
                         let x_scale = d3.scaleLinear()
                                                 .domain([0, bins.length])
                                                 .range([0, width]);
@@ -288,21 +290,21 @@
                                         .attr('class', 'stat_group')
                                         .attr('id', '#stat_group')
                                         .attr('transform',
-                                            'translate(' + margin.left + ',' + margin.top +')');
+                                            'translate(' + margin.left + ',' + (margin.top + height_total - height_stat) + ')');
 
                         const bar_width = width / bins.length;
-                        
+
                         let bars = stat_g.selectAll('g')
                                 .data(counts)
                                 .enter()
                                     .append('g')
-                                    .attr('transform', 
-                                        (d, i) => 'translate(' + 
+                                    .attr('transform',
+                                        (d, i) => 'translate(' +
                                          x_scale(i) + ',' + 0 + ')');
 
                         bars.append('rect')
                                 .attr('y', (d, i) => y_scale(d))
-                                .attr('height', (d, i) => height - y_scale(d))
+                                .attr('height', (d, i) => height_stat - y_scale(d))
                                 .attr('width', bar_width - 2)
                                 .attr('fill', 'red');
 
@@ -313,7 +315,7 @@
                         const x_axis = d3.axisBottom()
                                             .scale(x_axis_scale);
                         stat_g.append('g')
-                            .attr('transform', 'translate(0,' + height + ')')
+                            .attr('transform', 'translate(0,' + height_stat + ')')
                             .call(x_axis);
 
                         const y_axis = d3.axisLeft()
@@ -350,8 +352,6 @@
 
         });
 
-
-        var popup = L.popup();
         // Response to the mouse click
         map.on('click', function(e) {
             // alert("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
@@ -383,25 +383,10 @@
             };
             xhr.send(JSON.stringify(data));
         });
-        
-        /* Alternative solution
-        var countries = [];
-        var countriesOverlay = L.d3SvgOverlay(function(sel, proj) {
 
-          var upd = sel.selectAll('path').data(countries);
-          upd.enter()
-            .append('path')
-            .attr('d', proj.pathFromGeojson)
-            .attr('stroke', 'black')
-            .attr('fill', function(){ return d3.hsl(Math.random() * 360, 0.9, 0.5) })
-            .attr('fill-opacity', '0.5');
-          upd.attr('stroke-width', 1 / proj.scale);
-        });
+        // Fit to overlay bounds (SW and NE points with (lat, lon))
+        map.fitBounds([[9.92035336588, 101.633885799], [28.5669647084, 92.1384540862]]);
 
-        //L.control.layers({"Geo Tiles": tiles}, {"Countries": countriesOverlay}).addTo(map);
-
-        d3.json("map/MYANMAR_GEOJSON.json", function(data) { countries = data.features[0]; countriesOverlay.addTo(map) });
-        */
         </script>
 
         </body>

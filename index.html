@@ -110,34 +110,6 @@
             layers: [osm]
         });
 
-        // Declare radiobuttons listeners
-        let radioButtons = document.getElementsByName("myRadios");
-        radioButtons[0].checked = true;
-        let prev = {
-          value: "lyr1"
-        };
-        map.addLayer(lyr1);
-        let currentLayer = eval(prev.value);
-
-        for(var i = 0; i < radioButtons.length; i++) {
-          radioButtons[i].addEventListener('change', function() {
-            if(this.value !== "null") {
-              if(currentLayer !== undefined) {
-                map.removeLayer(eval(prev.value));
-              }
-                            console.log("here");
-              prev = this;
-              currentLayer = eval(this.value);
-              map.addLayer(currentLayer);
-              currentLayer.bringToFront();
-            }
-            if(this.value === "null") {
-              map.removeLayer(currentLayer);
-              currentLayer = undefined;
-            }
-          });
-        }
-
         var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "Stamen Toner": toner, "Without background": white};
 
         map.on('baselayerchange', function(e) {
@@ -212,7 +184,7 @@
                 .attr('font-size', 25)
                 .attr('transform', 'translate(10, 120)');
 
-        createD3LegendBox(stat_svg);
+        createD3LegendBox(stat_svg, 0);
 
         // Add province name group
         let prov_name_g = stat_svg.append('g')
@@ -394,6 +366,36 @@
             };
             xhr.send(JSON.stringify(data));
         });
+
+        // Declare radiobuttons listeners
+        let radioButtons = document.getElementsByName("myRadios");
+        radioButtons[0].checked = true;
+        let prev = {
+          value: "lyr1"
+        };
+        map.addLayer(lyr1);
+        let currentLayer = eval(prev.value);
+
+        for(var i = 0; i < radioButtons.length; i++) {
+          radioButtons[i].addEventListener('change', function() {
+            if(this.value !== "null") {
+              if(currentLayer !== undefined) {
+                map.removeLayer(eval(prev.value));
+              };
+
+              prev = this;
+              currentLayer = eval(this.value);
+              map.addLayer(currentLayer);
+              currentLayer.bringToFront();
+              createD3LegendBox(stat_svg, 1);
+            }
+            if(this.value === "null") {
+              map.removeLayer(currentLayer);
+              currentLayer = undefined;
+              removeColorBar();
+            }
+          });
+        }
 
         // Declare checkbox listeners
         let checkboxHideStats = document.getElementById("hideStats");

@@ -14,6 +14,7 @@
             <script src="lib/leaflet.js"></script>
             <script src="lib/leaflet.groupedlayercontrol.min.js"></script>
             <script src="src/colorMapLegend.js"></script>
+            <script src="src/colorDefs.js"></script>
 
             <style>
                 body { margin:0; padding:0; }
@@ -64,8 +65,8 @@
                         <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
                     </h1>
                     <h1> Data </h1>
-                    <input type="radio" name="myRadios" value="lyr1"> BaseFlow for historical climate <br>
-                    <input type="radio" name="myRadios" value="lyr2"> Flow retention for historical climate </br>
+                    <input type="radio" name="myRadios" value="0"> BaseFlow for historical climate <br>
+                    <input type="radio" name="myRadios" value="1"> Flow retention for historical climate </br>
                     <input type="radio" name="myRadios" value="null"> Nothing </br>
                 </div>
 
@@ -98,8 +99,8 @@
 
         // Overlay layers (TMS)
         // Add here the new layouts
-        var lyr1 = L.tileLayer('data/B_historical_change/{z}/{x}/{y}.png', {tms: true, opacity: 0.8, attribution: ""});
-        var lyr2 = L.tileLayer('data/B_flow_retention/{z}/{x}/{y}.png', {tms: true, opacity: 0.8, attribution: ""});
+        var lyr0 = L.tileLayer('data/B_historical_change/{z}/{x}/{y}.png', {tms: true, opacity: 0.8, attribution: ""});
+        var lyr1 = L.tileLayer('data/B_flow_retention/{z}/{x}/{y}.png', {tms: true, opacity: 0.8, attribution: ""});
 
         // Map
         var map = L.map('map', {
@@ -371,23 +372,23 @@
         let radioButtons = document.getElementsByName("myRadios");
         radioButtons[0].checked = true;
         let prev = {
-          value: "lyr1"
+          value: "0"
         };
-        map.addLayer(lyr1);
-        let currentLayer = eval(prev.value);
+        map.addLayer(lyr0);
+        let currentLayer = eval("lyr" + prev.value);
 
         for(var i = 0; i < radioButtons.length; i++) {
           radioButtons[i].addEventListener('change', function() {
             if(this.value !== "null") {
               if(currentLayer !== undefined) {
-                map.removeLayer(eval(prev.value));
+                map.removeLayer(eval("lyr" + prev.value));
               };
 
               prev = this;
-              currentLayer = eval(this.value);
+              currentLayer = eval("lyr" + this.value);
               map.addLayer(currentLayer);
               currentLayer.bringToFront();
-              createD3LegendBox(stat_svg, 1);
+              createD3LegendBox(stat_svg, parseInt(this.value, 10));
             }
             if(this.value === "null") {
               map.removeLayer(currentLayer);

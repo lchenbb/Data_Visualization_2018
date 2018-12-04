@@ -155,8 +155,11 @@
         var sidebar = L.control.sidebar('sidebar').addTo(map);
 
         // Initialization of statistics plotting
-        const height_stat = 300;
-        const height_total = 400;
+
+        const height_stat = 200;
+        const height_brush = 50;
+        const height_tick = 18;
+        const height_total = height_stat + height_brush + height_tick + 100;
         const width = 400;
         const margin = {
             top: 30,
@@ -164,7 +167,7 @@
             bottom: 30,
             left: 50
         };
-
+        const color = 'steelblue';
         // Build statistics svg
         stat_svg = d3.select('.leaflet-bottom.leaflet-right')
                         .append('svg')
@@ -176,7 +179,7 @@
                                 .attr('width', width + margin.left + margin.right)
                                 .attr('height', height_total + margin.top + margin.bottom)
                                 .attr('fill', 'white')
-                                .attr('opacity', 0.4);
+                                .attr('opacity', 0.6);
 
         // Add statistics name
         stat_svg.append('text')
@@ -184,6 +187,30 @@
                 .attr('fill', 'black')
                 .attr('font-size', 25)
                 .attr('transform', 'translate(10, 120)');
+
+        // Build statistics brush group
+        let stat_brush_g = stat_svg.append('g')
+                                    .attr('id', 'stat_brush_group')
+                                    .attr('transform',
+                                        'translate(' + margin.left + ',' + (margin.top + height_total - height_brush) + ')');
+
+        // Build brush background rectangle
+        let brush_rect = stat_brush_g.append('rect')
+                                    .attr('id', 'brush_rect')
+                                    .attr('width', width)
+                                    .attr('height', height_brush)
+                                    .attr('stroke-width', 1)
+                                    .attr('stroke', 'red')
+                                    .attr('fill', 'blue')
+                                    .attr('fill-opacity', 0.1);
+
+        // Add brush name
+        stat_svg.append('text')
+                    .text('Brush')
+                    .attr('fill', 'black')
+                    .attr('transform', 'translate(0,' + (height_total + margin.top - height_brush + 10) + ')')
+                    .attr('font-size', 18);
+
 
         createD3LegendBox(stat_svg, 0);
 
@@ -217,6 +244,7 @@
 
         let transform = d3.geoTransform({point: project_point});
         let gen_path = d3.geoPath().projection(transform);
+
         Promise.all([map_promise, full_stat]).then((results) => {
             let feature = g.selectAll('path')
                             .data(results[0].features)
@@ -239,6 +267,7 @@
                         // Get statistics
 
                         stat_results = results[1];
+                        console.log(stat_results);
                         let bins = stat_results['bins'][canton];
                         let counts = stat_results['full_disc_data_counts'][canton];
 
@@ -247,13 +276,18 @@
                         // Build bin-count dict
                         // Build test data
 
-                        // construct x y scale
+                        // construct x y and color scale
                         let y_scale = d3.scaleLinear()
                                                 .domain([0, max_count])
                                                 .range([height_stat, 0]);
+                        console.log('Max count', max_count);
                         let x_scale = d3.scaleLinear()
                                                 .domain([0, bins.length])
                                                 .range([0, width]);
+                        let color_scale = d3.scaleLinear()
+                                                .domain([0, max_count])
+                                                .range([d3.rgb(color).brighter(),
+                                                        d3.rgb(color).darker()]);
                         // Plot the bar chart
 
                         // Remove old info
@@ -261,7 +295,8 @@
                                     .remove();
                         prov_name_g.select('#prov_name')
                                     .remove()
-
+                        stat_svg.select('#stat_brush_group')
+                                    .remove();
                         // Plot new info
                         prov_name_g.append('text')
                                     .text(canton)
@@ -270,42 +305,146 @@
                                     .attr('text-anchor', 'end')
                                     .attr('id', 'prov_name');
 
-                        stat_g = stat_svg.append('g')
+                        // Build statistics group
+                        let stat_g = stat_svg.append('g')
                                         .attr('class', 'stat_group')
                                         .attr('id', '#stat_group')
                                         .attr('transform',
-                                            'translate(' + margin.left + ',' + (margin.top + height_total - height_stat) + ')');
+                                            'translate(' + margin.left + ',' + (margin.top + height_total - height_stat - height_tick - height_brush) + ')');
+                        
+                        // Build statistics plot group
+                        let stat_plot_g = stat_g.append('g')
+                                                    .attr('id', 'stat_plot_group');
 
-                        const bar_width = width / bins.length;
+                        // Rebuild statistics brush group
+                        let stat_brush_g = stat_svg.append('g')
+                                                    .attr('id', 'stat_brush_group')
+                                                    .attr('transform',
+                                                        'translate(' + margin.left + ',' + (margin.top + height_total - height_brush) + ')');
 
-                        let bars = stat_g.selectAll('g')
+                        // Rebuild brush background rectangle
+                        let brush_rect = stat_brush_g.append('rect')
+                                                    .attr('id', 'brush_rect')
+                                                    .attr('width', width)
+                                                    .attr('height', height_brush)
+                                                    .attr('stroke-width', 1)
+                                                    .attr('stroke', 'red')
+                                                    .attr('fill', 'blue')
+                                                    .attr('fill-opacity', 0.1);
+
+                        // Plot rectangles
+                        let bar_width = width / bins.length;
+
+                        
+                        let bars = stat_plot_g.selectAll('g')
                                 .data(counts)
                                 .enter()
                                     .append('g')
                                     .attr('transform',
                                         (d, i) => 'translate(' +
-                                         x_scale(i) + ',' + 0 + ')');
+                                         x_scale(i + 0.5) + ',' + 0 + ')');
 
                         bars.append('rect')
                                 .attr('y', (d, i) => y_scale(d))
-                                .attr('height', (d, i) => height_stat - y_scale(d))
-                                .attr('width', bar_width - 2)
-                                .attr('fill', 'red');
-
+                                .attr('height', (d, i) => 
+                                    height_stat - y_scale(d))
+                                .attr('width', bar_width - 0.2)
+                                .attr('fill', (d) => color_scale(d));
+                        console.log(bar_width);
                         // Add axis to the bar chart
-                        const x_axis_scale = d3.scaleLinear()
+                        let x_axis_scale = d3.scaleLinear()
                                                     .domain([bins[0], bins[bins.length - 1]])
                                                     .range([0, width]);
-                        const x_axis = d3.axisBottom()
+                        let x_axis = d3.axisBottom()
                                             .scale(x_axis_scale);
-                        stat_g.append('g')
-                            .attr('transform', 'translate(0,' + height_stat + ')')
-                            .call(x_axis);
+
+                        let x_axis_g = stat_g.append('g')
+                                        .attr('transform', 'translate(0,' + height_stat + ')')
+                                        .call(x_axis);
 
                         const y_axis = d3.axisLeft()
                                             .scale(y_scale);
                         stat_g.append('g')
                                 .call(y_axis);
+
+                        // Build brush for zooming
+                        let stat_brushX = d3.brushX()
+                                            .extent([[0, 0],
+                                                [width, height_brush]])
+                                            .on('end', (e) => {
+                                                L.DomEvent.stopPropagation(d3.event);
+                                                console.log(d3.event.selection);
+                                                let sel_result = d3.event.selection;
+                                                let new_domain; 
+                                                let new_index;
+                                                if (sel_result === null){
+                                                    // define restoration to base case event
+                                                    new_domain = [bins[0], bins[bins.length - 1]];
+                                                    new_index = new_domain.map(x => x / 100 + counts.length / 2);
+                                                }
+                                                else{
+                                                    // define rescale event
+                                                    new_domain = sel_result.map(x_axis_scale.invert);
+                                                    // convert new domain to interger
+                                                    new_domain = new_domain.map(x => Math.floor(x / 100) * 100);
+                                                    // get new index
+                                                    new_index = new_domain.map(x => x / 100 + counts.length / 2);
+                                                }
+                                                // Set up new x-scale and x-axis-scale
+                                                // That is because x are indices while axis are real numbers
+                                                x_axis_scale.domain(new_domain);
+                                                x_scale.domain(new_index.map(x => x - new_index[0]));
+
+                                                // Set up new x-axis
+                                                x_axis.scale(x_axis_scale);
+                                                x_axis_g.call(x_axis);
+                                        
+                                                // Create new bar width
+                                                bar_width = width / (new_index[1] - new_index[0] + 1);
+
+                                                // Clear old rectangles
+                                                stat_plot_g.selectAll('g')
+                                                            .data([])
+                                                            .exit()
+                                                            .remove();
+
+                                                // Add new rectangles
+                                                stat_plot_g.selectAll('g')
+                                                            .data(counts.slice(new_index[0],
+                                                                        new_index[1]))
+                                                            .enter()
+                                                                .append('g')
+                                                                .attr('transform', (d, i) => 'translate(' + x_scale(i + 1) + ',0)');
+
+                                                stat_plot_g.selectAll('g')
+                                                    .append('rect')
+                                                    .attr('y', (d) => y_scale(d))
+                                                    .attr('width', bar_width - 0.2)
+                                                    .attr('height', (d) => height_stat - y_scale(d))
+                                                    .attr('fill', (d) => color_scale(d));
+
+                                                // Restore map functions
+                                                map.dragging.enable();
+                                                map.touchZoom.enable();
+                                                map.doubleClickZoom.enable();
+                                                map.scrollWheelZoom.enable();
+                                                map.boxZoom.enable();
+                                                map.keyboard.enable();
+                                                if (map.tap) map.tap.enable();
+                                                document.getElementById('map').style.cursor='grab';
+                                            });
+
+                        // Prevent map from moving while we are focused on brushing
+                        stat_brushX.on('brush', function(){
+                                                    map.dragging.disable();
+                                                    map.touchZoom.disable();
+                                                    map.doubleClickZoom.disable();
+                                                    map.scrollWheelZoom.disable();
+                                                    map.boxZoom.disable();
+                                                    map.keyboard.disable();
+                                                    if (map.tap) map.tap.disable();
+                                                    document.getElementById('map').style.cursor='default';});
+                        stat_brush_g.call(stat_brushX);
 
                     });
 

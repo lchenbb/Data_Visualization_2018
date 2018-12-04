@@ -155,7 +155,6 @@
         var sidebar = L.control.sidebar('sidebar').addTo(map);
 
         // Initialization of statistics plotting
-
         const height_stat = 200;
         const height_brush = 50;
         const height_tick = 18;
@@ -168,6 +167,7 @@
             left: 50
         };
         const color = 'steelblue';
+
         // Build statistics svg
         stat_svg = d3.select('.leaflet-bottom.leaflet-right')
                         .append('svg')
@@ -239,9 +239,7 @@
 
         // load statistics json
         const full_stat = d3.json('./prov_data.json').then(d => d);
-
-        // let stat = $.parseJSON(json_);
-
+        
         let transform = d3.geoTransform({point: project_point});
         let gen_path = d3.geoPath().projection(transform);
 

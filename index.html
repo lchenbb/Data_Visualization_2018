@@ -45,6 +45,7 @@
           <script src="lib/d3.min.js"></script>
           <script src="lib/leaflet-sidebar.js"></script>
           <script src="lib/jquery-3.3.1.min.js"></script>
+          <script src="data/B_historical_change/heat/temp.js"></script>
 
           <div id="sidebar" class="sidebar collapsed" name="sidebarName">
             <!-- Nav tabs -->
@@ -548,11 +549,7 @@
             stat_svg.attr("visibility", "visible");
           }
         });
-
-        var heat = L.heatLayer([
-	               [16.8052800, 96.1561100, 2], // lat, lng, intensity
-	               [16.85, 96.4, 0.5]
-               ], {radius:25}).addTo(map);
+        var heat = L.heatLayer(test1, {radius:6}).addTo(map);
 
         // Fit to overlay bounds (SW and NE points with (lat, lon))
         map.fitBounds([[9.92035336588, 101.633885799], [28.5669647084, 92.1384540862]]);

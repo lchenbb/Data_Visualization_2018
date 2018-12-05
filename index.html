@@ -15,6 +15,7 @@
             <script src="lib/leaflet.groupedlayercontrol.min.js"></script>
             <script src="src/colorMapLegend.js"></script>
             <script src="src/colorDefs.js"></script>
+            <script src="lib/leaflet-heat.js"></script>
 
             <style>
                 body { margin:0; padding:0; }
@@ -239,7 +240,7 @@
 
         // load statistics json
         const full_stat = d3.json('./prov_data.json').then(d => d);
-        
+
         let transform = d3.geoTransform({point: project_point});
         let gen_path = d3.geoPath().projection(transform);
 
@@ -309,7 +310,7 @@
                                         .attr('id', '#stat_group')
                                         .attr('transform',
                                             'translate(' + margin.left + ',' + (margin.top + height_total - height_stat - height_tick - height_brush) + ')');
-                        
+
                         // Build statistics plot group
                         let stat_plot_g = stat_g.append('g')
                                                     .attr('id', 'stat_plot_group');
@@ -333,7 +334,7 @@
                         // Plot rectangles
                         let bar_width = width / bins.length;
 
-                        
+
                         let bars = stat_plot_g.selectAll('g')
                                 .data(counts)
                                 .enter()
@@ -344,7 +345,7 @@
 
                         bars.append('rect')
                                 .attr('y', (d, i) => y_scale(d))
-                                .attr('height', (d, i) => 
+                                .attr('height', (d, i) =>
                                     height_stat - y_scale(d))
                                 .attr('width', bar_width - 0.2)
                                 .attr('fill', (d) => color_scale(d));
@@ -373,7 +374,7 @@
                                                 L.DomEvent.stopPropagation(d3.event);
                                                 console.log(d3.event.selection);
                                                 let sel_result = d3.event.selection;
-                                                let new_domain; 
+                                                let new_domain;
                                                 let new_index;
                                                 if (sel_result === null){
                                                     // define restoration to base case event
@@ -396,7 +397,7 @@
                                                 // Set up new x-axis
                                                 x_axis.scale(x_axis_scale);
                                                 x_axis_g.call(x_axis);
-                                        
+
                                                 // Create new bar width
                                                 bar_width = width / (new_index[1] - new_index[0] + 1);
 
@@ -472,7 +473,7 @@
             });
 
         });
-	
+
 	var popup = L.popup();
         // Response to the mouse click
         map.on('click', function(e) {
@@ -547,6 +548,11 @@
             stat_svg.attr("visibility", "visible");
           }
         });
+
+        var heat = L.heatLayer([
+	               [16.8052800, 96.1561100, 2], // lat, lng, intensity
+	               [16.85, 96.4, 0.5]
+               ], {radius:25}).addTo(map);
 
         // Fit to overlay bounds (SW and NE points with (lat, lon))
         map.fitBounds([[9.92035336588, 101.633885799], [28.5669647084, 92.1384540862]]);

@@ -1,6 +1,6 @@
 var colorsDefs = [
   {
-    colors:["#ff0000", "#ffffff", "#084081"],
+    colors:["#a52a2a", "#ffffff", "#1aa4f0"],
     percentages: ["0%", "50%", "100%"]
   },
   {

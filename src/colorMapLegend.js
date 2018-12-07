@@ -10,7 +10,8 @@ function createD3LegendBox(svg, value) {
       bottom: 30,
       left: 50
   };
-  console.log(value);
+  
+  console.log("here it goes");
   if(colorbar !== undefined) {
     colorbar.remove();
   }
@@ -38,6 +39,7 @@ function createD3LegendBox(svg, value) {
     .attr("spreadMethod", "pad");
 
   const colorsObject = getColorsAndPercentages(value);
+  console.log(colorsObject);
   addColorsToLegend(colorsObject.colors, colorsObject.percentages, legend);
 
   colorbar.append("rect")

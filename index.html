@@ -5,7 +5,9 @@
             <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
             <title>SWY</title>
             <!-- bar chart -->
-            <link rel="stylesheet" href="css/class.css" />
+            <link rel="stylesheet" href="css/autocomplete.css" />
+            <link rel="stylesheet" href="css/timeline.css" />
+
             <!-- Leaflet -->
             <link rel="stylesheet" href="css/leaflet.css" />
             <link rel="stylesheet" href="css/leaflet-sidebar.css" />
@@ -43,6 +45,8 @@
                 .src {
                     font-size: 10pt;
                 }
+
+
 
             </style>
 
@@ -108,14 +112,32 @@
                      <input type="checkbox" id="decreaseHeat" value="1"> Show decrease </br>
                    </div>
 
-                   <div class="tab-pane fade" id="cantonView" role="tabpanel" aria-labelledby="canton-view-tab">
-                     Canton View
+                   <div class="tab-pane fade" id="cantonView" role="tabpanel" aria-labelledby="canton-view-tab" style="height:100px">
+                      <p>States in Myanmar</p>
+
+                      <!--Make sure the form has the autocomplete function switched off:-->
+                      <!-- <form autocomplete="off" action=> -->
+                      <div class="autocomplete" style="width:150px;">
+                        <input id="myInput" type="text" name="myCountry" placeholder="State" style="width:100px;height:25px">
+                        <button style="position:absolute;height:25px;margin-left:5px" type="button" class="btn-success" onclick="getInput()">Search</button>
+                      </div>
+
                    </div>
 
                    <div class="tab-pane fade" id="timelineView" role="tabpanel" aria-labelledby="timeline-tab">
-                     Timeline view
+
+     
+        <div id="vis">
+          <button id="play-button">Play</button>
+        </div>
+        <div>
+          <img src="http://www.endlessicons.com/wp-content/uploads/2012/11/reset-icon-614x460.png" id="reset" onclick = "Reset()" />
+        </div>
+
                    </div>
+
                  </div>
+
                 </div>
               </div>
             </div>
@@ -129,6 +151,13 @@
           </div>
 
           <div id="map" class="sidebar-map"></div>
+
+        <script src='data/mapList.js'></script>
+        <script src='js/d3v4.js'></script>
+        <script src='js/autocomplete.js'></script>
+        <script src='js/timeline.js'></script>
+        <script src='js/fengyu.js'></script>
+
 
         <script>
 
@@ -288,8 +317,7 @@
         }
 
         let canton = null;
-        // load json
-        // var json_ = $.getJSON('data/stat.json');
+  
         let stat = d3.json("./data/stat.json").then(d => d);
 
         // load statistics json
@@ -528,37 +556,27 @@
 
         });
 
-	var popup = L.popup();
+	      var popup = L.popup();
         // Response to the mouse click
         map.on('click', function(e) {
-            // alert("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
-	        // console.log("wait for server");
 
-            var xhr = new XMLHttpRequest();
-            var url = "https://35.243.179.153";
-	        //var url = "http://10.142.0.2:5000/";
             var data = {'lat': e.latlng.lat, 'lin': e.latlng.lng};
-            xhr.open("POST", url, true);
-            xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    // do something with response
-                    if (canton != null){
-                        popup.setLatLng(e.latlng)
-                        .setContent("Position " + e.latlng.toString() + '\nCanton is ' + canton.toString() + '\nValue is ' + xhr.responseText.toString())
-                        .openOn(map)
-                        canton = null
-                    }
-                    else {
-                        popup.setLatLng(e.latlng)
-                        .setContent("Position " + e.latlng.toString() + '\nValue is ' + xhr.responseText.toString())
-                        .openOn(map)
-                    }
-                    console.log(popup)
-                    console.log(xhr.responseText);
-                }
-            };
-            xhr.send(JSON.stringify(data));
+            
+            let nearestP = nearestPoint(data);
+
+            // do something with response
+            if (canton != null){
+                popup.setLatLng(e.latlng)
+                .setContent("Position " + e.latlng.toString() + '\nCanton is ' + canton.toString() + '\nValue is ' + nearestP.toString())
+                .openOn(map)
+                canton = null
+            }
+            else {
+                popup.setLatLng(e.latlng)
+                .setContent("Position " + e.latlng.toString() + '\nValue is ' + nearestP.toString())
+                .openOn(map)
+            }
+
         });
 
         // Declare radiobuttons listeners

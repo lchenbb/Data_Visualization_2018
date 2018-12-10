@@ -1,0 +1,194 @@
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  position: relative;
+  left: -3px;
+  top: -2px;
+}
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#picture {
+height: 144px;
+width: 216px;
+position: relative;
+left: 72px;
+top: 30px;
+}
+
+#reset {
+height: 50px;
+width: 66px;
+position: absolute;
+top: 190px;
+left: 330px;
+}
+
+#play-button {
+position: absolute;
+top: 200px;
+left: 280px;
+background: #f08080;
+padding-right: 26px;
+border-radius: 3px;
+border: white;
+color: white;
+margin: 0;
+padding: 0 12px;
+width: 60px;
+cursor: pointer;
+height: 30px;
+}
+
+#play-button:hover {
+background-color: #696969;
+}
+
+.ticks {
+font-size: 10px;
+}
+
+.track,
+.track-inset,
+.track-overlay {
+stroke-linecap: round;
+}
+
+.track {
+stroke: #000;
+stroke-opacity: 0.3;
+stroke-width: 10px;
+}
+
+.track-inset {
+stroke: #dcdcdc;
+stroke-width: 8px;
+}
+
+.track-overlay {
+pointer-events: stroke;
+stroke-width: 50px;
+stroke: transparent;
+cursor: crosshair;
+}
+
+.handle {
+fill: #fff;
+stroke: #000;
+stroke-opacity: 0.5;
+stroke-width: 1.25px;
+}
+
+#control_panel {
+line-height:0px;
+background-color:#eeeeee;
+height: 110px;
+width: 600px;
+padding: 0px;
+border-bottom: 1px solid #aaaaaa;
+}
+
+#position {
+line-height:5px;
+font-size: 14px;
+background-color:#eeeeee;
+height:100px;
+width:220px;
+position: absolute;
+white-space:nowrap;
+top:8px;
+left:608px; 
+padding: 5px; 
+border-bottom: 1px solid #aaaaaa;
+border-left: 1px solid #aaaaaa;
+}
+
+#districtdata {
+position: absolute;
+top: 78px;
+left: 320px;
+}
+
+/* Dropdown Button */
+.dropbtn {
+  background-color: #3498DB;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Dropdown button on hover & focus */
+.dropbtn:hover, .dropbtn:focus {
+  background-color: #2980B9;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+
+
+.background path {
+fill: none;
+stroke: #ccc;
+stroke-opacity: .4;
+shape-rendering: crispEdges;
+}
+
+.foreground path {
+fill: none;
+stroke: steelblue;
+stroke-opacity: .7;
+}
+
+.brush .extent {
+fill-opacity: .3;
+stroke: #fff;
+shape-rendering: crispEdges;
+}
+
+.axis line,
+.axis path {
+fill: none;
+stroke: #000;
+shape-rendering: crispEdges;
+}
+
+.axis text {
+text-shadow: 0 1px 0 #fff;
+cursor: move;
+}

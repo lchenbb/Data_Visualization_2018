@@ -258,7 +258,7 @@
         const width = sidebar_element.node().getBoundingClientRect().width - margin.right - margin.left;
         const svg_y = sidebar_height - height_total - margin.top - margin.bottom - panel_guide_height;
         const color = 'steelblue';
-        console.log(sidebar_element.node().getBoundingClientRect().height);
+
         // Build statistics svg
         stat_svg = d3.select('.leaflet-sidebar-content')
                         .append('svg')
@@ -336,10 +336,11 @@
         let stat = d3.json("./data/stat.json").then(d => d);
 
         // load statistics json
-        const full_stat = d3.json('./prov_data.json').then(d => d);
+        const full_stat = d3.json('./data/prov_data.json').then(d => d);
 
         let transform = d3.geoTransform({point: project_point});
         let gen_path = d3.geoPath().projection(transform);
+
 
         Promise.all([map_promise, full_stat]).then((results) => {
             let feature = g.selectAll('path')
@@ -349,7 +350,7 @@
             feature.attr('d', gen_path)
                     .attr('class', 'province')
                     .attr('fill-opacity', 0)
-                    .attr('postion', 'relative')
+                    .attr('position', 'relative')
                     .attr('stroke', 'green')
                     .attr('stroke-width', 2)
                     .attr('stroke-opacity', 0.5)

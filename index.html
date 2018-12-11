@@ -126,13 +126,13 @@
 
                    <div class="tab-pane fade" id="timelineView" role="tabpanel" aria-labelledby="timeline-tab">
 
-     
-        <div id="vis">
-          <button id="play-button">Play</button>
-        </div>
-        <div>
-          <img src="http://www.endlessicons.com/wp-content/uploads/2012/11/reset-icon-614x460.png" id="reset" onclick = "Reset()" />
-        </div>
+
+                    <div id="vis">
+                      <button id="play-button">Play</button>
+                    </div>
+                    <div>
+                      <img src="http://www.endlessicons.com/wp-content/uploads/2012/11/reset-icon-614x460.png" id="reset" onclick = "Reset()" />
+                    </div>
 
                    </div>
 
@@ -155,9 +155,20 @@
         <script src='data/mapList.js'></script>
         <script src='js/d3v4.js'></script>
         <script src='js/autocomplete.js'></script>
+        <script src='data/qf_historical_12months/qf1.js'></script>
+        <script src='data/qf_historical_12months/qf2.js'></script>
+        <script src='data/qf_historical_12months/qf3.js'></script>
+        <script src='data/qf_historical_12months/qf4.js'></script>
+        <script src='data/qf_historical_12months/qf5.js'></script>
+        <script src='data/qf_historical_12months/qf6.js'></script>
+        <script src='data/qf_historical_12months/qf7.js'></script>
+        <script src='data/qf_historical_12months/qf8.js'></script>
+        <script src='data/qf_historical_12months/qf9.js'></script>
+        <script src='data/qf_historical_12months/qf10.js'></script>
+        <script src='data/qf_historical_12months/qf11.js'></script>
+        <script src='data/qf_historical_12months/qf12.js'></script>
         <script src='js/timeline.js'></script>
         <script src='js/fengyu.js'></script>
-
 
         <script>
 
@@ -317,7 +328,7 @@
         }
 
         let canton = null;
-  
+
         let stat = d3.json("./data/stat.json").then(d => d);
 
         // load statistics json
@@ -561,7 +572,7 @@
         map.on('click', function(e) {
 
             var data = {'lat': e.latlng.lat, 'lin': e.latlng.lng};
-            
+
             let nearestP = nearestPoint(data);
 
             // do something with response

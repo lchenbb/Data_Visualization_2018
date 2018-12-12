@@ -171,9 +171,9 @@
           <div id="ctl_panel_div" class="split">
             <p style="font-size:20px">Control panel</p>
           </div>
-          <div id="stat_div" class="split">
+          <div id="stat_div" class="split" style="background-color:gray">
             <p style="font-size:20px">Statistics</p>
-            <svg>
+            
           </div>
           <div id="map" class="sidebar-map split" style="right:0 !important"></div>
 
@@ -263,10 +263,10 @@
         }).addTo(map);
         sidebar.open('home');
 
-        // Obtain the data for the sidebar
-        let sidebar_element = d3.select('.leaflet-sidebar-content');
-        console.log(sidebar_element);
-        console.log('default width',sidebar_element.node().getBoundingClientRect().width);
+        // Obtain the data for the statistics_div
+        let stat_div_element = d3.select('#stat_div');
+        console.log(stat_div_element);
+        console.log('default width', stat_div_element.node().getBoundingClientRect().width);
 
         // Initialization of statistics plotting
         const margin = {
@@ -275,20 +275,19 @@
             bottom: 30,
             left: 50
         };
-        const height_stat = 200;
-        const height_brush = 50;
+        const height_stat = 300;
+        const height_brush = 30;
         const height_tick = 18;
         const panel_guide_height = 500;
-        const sidebar_height = sidebar_element.node().getBoundingClientRect().height;
         const height_total = height_stat + height_brush + height_tick + 100;
-        const width = sidebar_element.node().getBoundingClientRect().width - margin.right - margin.left;
-        const svg_y = sidebar_height - height_total - margin.top - margin.bottom - panel_guide_height;
+        const width = stat_div_element.node().getBoundingClientRect().width - margin.right - margin.left;
+        const svg_y =  - height_total - margin.top - margin.bottom - panel_guide_height;
         const color = 'steelblue';
 
         // Build statistics svg
-        stat_svg = d3.select('.leaflet-sidebar-content')
+        stat_svg = d3.select('#stat_div')
                         .append('svg')
-                        .attr('transform', 'translate(0,' + svg_y + ')')
+                        .attr('transform', 'translate(0,' + 0 + ')')
                         .attr('width', width + margin.left + margin.right)
                         .attr('height', height_total + margin.top + margin.bottom);
 
@@ -512,12 +511,27 @@
                                         .attr('font-size', 25)
                                         .attr('fill', 'black');
 
+                        // Add y_axis
                         let y_axis = d3.axisLeft()
                                             .scale(y_scale);
                         let y_axis_g = stat_g.append('g')
                                             .attr('id', 'y_axis_g')
                                             .call(y_axis);
 
+                        // Add color bar
+                        let color_bar = d3.select('body').append('canvas')
+                                                  .attr('width', 200)
+                                                  .attr('height', 50)
+                                                  .attr('id', 'hello');
+                        let color_bar_ctx = color_bar.getContext('2d');
+                        for (let i = 0; i < 255; i++){
+                            color_bar_ctx.beginPath();
+                            let color = 'rgb(100, ' + i + ',' + i + ')';
+
+                            color_bar_ctx.fillStyle = color;
+
+                            color_bar_ctx.fillRect(i * 2, 0, 2, 50);
+                        }
                         let stat_brushX = d3.brushX()
                                             .extent([[0, 0],
                                                 [width, height_brush]])

@@ -384,7 +384,7 @@
                         // Set the canton
                         canton = d.properties['NAME_1'];
                         console.log(d.properties['NAME_1']);
-
+                        
                         // Draw the statistics of canton
 
                         // Get statistics
@@ -519,6 +519,7 @@
                                             .call(y_axis);
 
                         // Add color bar
+                        /*
                         let color_bar = d3.select('body').append('canvas')
                                                   .attr('width', 200)
                                                   .attr('height', 50)
@@ -532,6 +533,7 @@
 
                             color_bar_ctx.fillRect(i * 2, 0, 2, 50);
                         }
+                        */
                         let stat_brushX = d3.brushX()
                                             .extent([[0, 0],
                                                 [width, height_brush]])

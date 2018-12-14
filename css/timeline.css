@@ -26,15 +26,11 @@ top: 30px;
 #reset {
 height: 50px;
 width: 66px;
-position: absolute;
-top: 190px;
-left: 330px;
+position: relative;
 }
 
 #play-button {
-position: absolute;
-top: 200px;
-left: 280px;
+position: relative;
 background: #f08080;
 padding-right: 26px;
 border-radius: 3px;
@@ -104,8 +100,8 @@ width:220px;
 position: absolute;
 white-space:nowrap;
 top:8px;
-left:608px; 
-padding: 5px; 
+left:608px;
+padding: 5px;
 border-bottom: 1px solid #aaaaaa;
 border-left: 1px solid #aaaaaa;
 }

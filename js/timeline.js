@@ -4,10 +4,12 @@ var formatYearMonth = d3v4.timeFormat("%m %Y");
 // use to return in format Jan 2017 which is located under the slider
 var formatYearMonth2 = d3v4.timeFormat("%b %Y");
 
+var currentHeatmap = undefined;
+var heatmaps = [];
 
 // set the data
-var startDate = new Date("2017-01-01"), //before the first date of host
-    endDate = new Date("2017-12-31"); //after the last date of host
+var startDate = new Date("2018-01-01"), //before the first date of host
+    endDate = new Date("2018-12-31"); //after the last date of host
 
 var marginTL = {top:0, right:10, bottom:0, left:10}, //change for the format
     widthTL = 350 - marginTL.left - marginTL.right,
@@ -16,7 +18,7 @@ var marginTL = {top:0, right:10, bottom:0, left:10}, //change for the format
 var svgTL = d3v4.select("#vis")
     .append("svg")
     .attr("width", widthTL + marginTL.left + marginTL.right)
-    .attr("height", heightTL + marginTL.top + marginTL.bottom);  
+    .attr("height", heightTL + marginTL.top + marginTL.bottom);
 
 ////////// slider //////////
 var moving = false;
@@ -24,7 +26,7 @@ var currentValue = 0;
 var targetValue = widthTL;
 
 var playButton = d3v4.select("#play-button");
-    
+
 var x = d3v4.scaleTime()
     .domain([startDate, endDate])
     .range([0, targetValue])
@@ -46,7 +48,7 @@ slider.append("line")
         .on("start.interrupt", function() { slider.interrupt(); })
         .on("start drag", function() {
           currentValue = d3v4.event.x;
-          update(x.invert(currentValue)); 
+          update(x.invert(currentValue));
         })
     );
   x_ticks = x.ticks(4);
@@ -54,7 +56,7 @@ slider.append("line")
 
 slider.insert("g", ".track-overlay")
     .attr("class", "ticks")
-    .attr("transform", "translate(0," + 15 + ")")
+    .attr("transform", "translate(0," + 25 + ")")
   .selectAll("text")
     .data(x_ticks) //number of ticks
     .enter()
@@ -69,14 +71,14 @@ var handle = slider.insert("circle", ".track-overlay")
     .attr("r", 8)
     .attr("cx", widthTL);
 
-var label = slider.append("text")  
+var label = slider.append("text")
     .attr("class", "label")
     .attr("style", "font-size:10px")
     .attr("text-anchor", "middle")
     .text(formatYearMonth2(endDate))
     .attr("transform", "translate(0," + (-15) + ")") // position of label
     .attr("x", widthTL);
- 
+
 ////////// play //////////
 
 // var plot = svg.append("g")
@@ -106,7 +108,7 @@ function prepare(d) {
   d.date = parseDate(d.date);
   return d;
 }
-  
+
 function step() {
   // console.log(currentValue);
   update(x.invert(currentValue));
@@ -129,9 +131,20 @@ function update(h) {
   var month = formatYearMonth(h).split(" ")[0];
   var year = formatYearMonth(h).split(" ")[1];
   console.log(month);
-  // There should update a function here to show the heapmap
+  showHeatMap(parseInt(month,10));
+  // There should update a function here to show the heatmap
 }
 
+function showHeatMap(index) {
+  if(currentHeatmap !== undefined) {
+    map.removeLayer(currentHeatmap);
+  }
+  let heatmap = L.heatLayer(eval("qf_" + index), {
+    radius:10,
+    max:860,
+  }).addTo(map);
+  currentHeatmap = heatmap;
+}
 
 function Switch(x){
   var selected = document.getElementById(x).value;
@@ -166,7 +179,7 @@ function Switch(x){
       }
       currentDisplay = "bubbles"
   }
-  
+
 }
 
 function Reset() {

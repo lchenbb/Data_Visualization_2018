@@ -104,7 +104,8 @@ function getInput(){
   let canton_search = document.getElementById("myInput").value
   if (cantons_lower.includes(canton_search)){
     console.log(canton_search);
-    map.flyTo([cantonCenter[canton_search]["lat"], cantonCenter[canton_search]["lin"]], cantonCenter[canton_search]["zoom"])
+    map.flyTo([cantonCenter[canton_search]["lat"], cantonCenter[canton_search]["lin"]], cantonCenter[canton_search]["zoom"]);
+    console.log('fly to')
   }
   else if (!canton_search) {
     alert("Please input the canton name")

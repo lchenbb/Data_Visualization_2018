@@ -96,7 +96,7 @@ d3v4.csv(prepare, function(data) {
       button.text("Play");
     } else {
       moving = true;
-      timer = setInterval(step, 100);
+      timer = setInterval(step, 50);
       button.text("Pause");
     }
     console.log("Slider moving: " + moving);

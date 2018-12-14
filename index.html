@@ -79,7 +79,7 @@
           <script src="lib/leaflet-sidebar.js"></script>
 
           <!-- Divide the screen into three parts-->
-          <div id="ctl_panel_div" class="split">
+          <div id="ctl_panel_div" class="split" style="border: 2px solid black">
             <p style="font-size:20px">Control panel</p>
             <form class="form">
               <p style="font-size:18px">Choose data</p>
@@ -105,6 +105,13 @@
                 <button style="margin-left:20px" type="button" class="btn btn-outline-primary">Search</button>
               </div>
             </form>
+
+            <div class="autocomplete" style="width:300px;">
+                <input id="myInput" type="text" name="myCountry" placeholder="State">
+            </div>
+       
+
+<button type="button" class="btn-success" onclick="getInput()">Search</button>
 
             <form class="form">
               <p>
@@ -152,7 +159,7 @@
 
         $("#play-button").click( function(event) {
            event.preventDefault();
-           console.log('ininin');
+           console.log('clean the default');
         });
 
         /* **** Leaflet **** */
@@ -609,10 +616,16 @@
 
                     });
 
-            feature.on('click', function(d, i){
+            feature.on('mouseover', function(d, i){
                 d3.selectAll('.province')
                     .style('fill-opacity', 0);
-                d3.select(this).style('fill-opacity', 0.6);
+                d3.select(this).style('fill-opacity', 0.1);
+            });
+
+            feature.on('mouseout', function(d, i){
+                d3.selectAll('.province')
+                    .style('fill-opacity', 0);
+                d3.select(this).style('fill-opacity', 0.0);
             });
 
             let bounds = gen_path.bounds(results[0]);
@@ -659,7 +672,7 @@
                 console.log(canton)
                 title.update(data['lat'], data['lin'], nearestP, canton);
                 //title.addTo(map);
-                map.flyTo([cantonCenter[canton]["lat"], cantonCenter[canton]["lin"]], cantonCenter[canton]["zoom"])
+                
 
                 canton = null
             }

@@ -78,59 +78,17 @@
           <script src="lib/d3.min.js"></script>
           <script src="lib/leaflet-sidebar.js"></script>
 
-          <div id="sidebar" class="leaflet-sidebar">
-            <!-- Nav tabs -->
-            <div class="leaflet-sidebar-tabs">
-              <ul role="tablist">
-                <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
-              </ul>
-
-              <ul role="tablist">
-                <li><a href="#settings" role="tab"><i class="fa fa-cog"></i></a></li>
-              </ul>
-            </div>
-
-            <!-- Tab panes -->
-            <div class="leaflet-sidebar-content">
-
-     
-
-                  <!-- tab panes -->
-                  <div class="tab-content" id="myTabContent">
-                   <div class="tab-pane fade show active" id="userGuidelines" role="tabpanel" aria-labelledby="user-guidelines-tab">
-                     Give the user guidelines of the control panel.
-                   </div>
-
-                   <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-
-                     <font size="+1"> Data </font> </br>
-                     <input type="radio" name="myRadios" value="0"> BaseFlow for historical climate </br>
-                     <input type="radio" name="myRadios" value="1"> Flow retention for historical climate </br>
-                     <input type="radio" name="myRadios" value="null"> Nothing </br>
-
-                     <font size="+1"> Heatmap </font> </br>
-                     <input type="checkbox" id="increaseHeat" value="0"> Show increase </br>
-                     <input type="checkbox" id="decreaseHeat" value="1"> Show decrease </br>
-                   </div>
-                 </div>
-
-                </div>
-              </div>
-            </div>
-
-          </div>
-
           <!-- Divide the screen into three parts-->
           <div id="ctl_panel_div" class="split">
             <p style="font-size:20px">Control panel</p>
             <form class="form">
               <p style="font-size:18px">Choose data</p>
               <div class="inputGroup">
-                <input id="radio1" name="radio" type="radio"/>
+                <input id="radio1" name="myRadios" type="radio" value="0"/>
                 <label for="radio1">Baseflow</label>
               </div>
               <div class="inputGroup">
-                <input id="radio2" name="radio" type="radio"/>
+                <input id="radio2" name="myRadios" type="radio" value="1"/>
                 <label for="radio2">Quickflow</label>
               </div>
             </form>
@@ -141,10 +99,8 @@
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                   Dropdown button
                 </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div style="height: auto;max-height:100px;overflow-x: hidden;" class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="dropdownList">
                   <a class="dropdown-item" href="#">Action</a>
-                  <a class="dropdown-item" href="#">Another action</a>
-                  <a class="dropdown-item" href="#">Something else here</a>
                 </div>
                 <button style="margin-left:20px" type="button" class="btn btn-outline-primary">Search</button>
               </div>
@@ -188,8 +144,11 @@
         <script src='data/qf_historical_12months/qf12.js'></script>
         <script src='js/timeline.js'></script>
         <script src='js/fengyu.js'></script>
+        <script src='js/search-cantons.js'></script>
 
         <script>
+
+        addElementsToList();
 
         /* **** Leaflet **** */
 
@@ -265,13 +224,6 @@
         let stupid_element = document.querySelector('.leaflet-control-attribution.leaflet-control');
         stupid_element.parentNode.removeChild(stupid_element);
 
-        // End of switcher control.
-
-        var sidebar = L.control.sidebar('sidebar', {
-          position : "right",
-          autopan : false
-        }).addTo(map);
-        
         // make the side bar close
         //sidebar.open('home');
 
@@ -702,7 +654,7 @@
                 console.log(canton)
                 title.update(data['lat'], data['lin'], nearestP, canton);
                 //title.addTo(map);
-                map.flyTo([cantonCenter[canton]["lat"], cantonCenter[canton]["lin"]], cantonCenter[canton]["zoom"]) 
+                map.flyTo([cantonCenter[canton]["lat"], cantonCenter[canton]["lin"]], cantonCenter[canton]["zoom"])
 
                 canton = null
             }

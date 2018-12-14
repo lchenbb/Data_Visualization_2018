@@ -22,6 +22,7 @@
             <script src="src/colorDefs.js"></script>
             <script src="lib/leaflet-heat.js"></script>
             <script src="lib/jquery-3.3.1.min.js"></script>
+            <script src="js/canton_center.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
             <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" type="text/javascript"></script>
             <script src="lib/bootstrap-tabs-x.min.js" type="text/javascript"></script>
@@ -89,27 +90,7 @@
             <!-- Tab panes -->
             <div class="leaflet-sidebar-content">
 
-              <div class="leaflet-sidebar-pane" id="home">
-                <h1 class="leaflet-sidebar-header">
-                  Control panel
-                  <span class="leaflet-sidebar-close"><i class="fa fa-caret-right"></i></span>
-                </h1> </br>
-                <div class="tabs-x align-center tabs-above tab-bordered" style="overflow:auto;height:400px">
-                  <!-- tabs -->
-                  <ul class="nav nav-tabs" id="myTab" role="tablist">
-                     <li class="nav-item">
-                          <a class="nav-link active" id="user-guidelines-tab" data-toggle="tab" href="#userGuidelines" role="tab" aria-controls="home" aria-expanded="tue"><div class="text-center"><span>User</br>Guidelines</span></div></a>
-                     </li>
-                     <li class="nav-item">
-                          <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"> <div class="text-center"><span>Overview<br/>&nbsp</span></div></a>
-                     </li>
-                     <li class="nav-item">
-                          <a class="nav-link" id="canton-view-tab" data-toggle="tab" href="#cantonView" role="tab" aria-controls="cantonView"> <div class="text-center"><span>Canton<br/>View</span></div></a>
-                     </li>
-                     <li class="nav-item">
-                          <a class="nav-link" id="timeline-tab" data-toggle="tab" href="#timelineView" role="tab" aria-controls="timelineView"> <div class="text-center"><span>Month<br/>View</span></div></a>
-                     </li>
-                  </ul>
+     
 
                   <!-- tab panes -->
                   <div class="tab-content" id="myTabContent">
@@ -129,29 +110,6 @@
                      <input type="checkbox" id="decreaseHeat" value="1"> Show decrease </br>
                    </div>
 
-                   <div class="tab-pane fade" id="cantonView" role="tabpanel" aria-labelledby="canton-view-tab" style="height:100px">
-                      <p>States in Myanmar</p>
-
-                      <!--Make sure the form has the autocomplete function switched off:-->
-                      <!-- <form autocomplete="off" action=> -->
-                      <div class="autocomplete" style="width:150px;">
-                        <input id="myInput" type="text" name="myCountry" placeholder="State" style="width:100px;height:25px">
-                        <button style="position:absolute;height:25px;margin-left:5px" type="button" class="btn-success" onclick="getInput()">Search</button>
-                      </div>
-
-                   </div>
-
-                   <div class="tab-pane fade" id="timelineView" role="tabpanel" aria-labelledby="timeline-tab">
-
-     
-        <div id="vis">
-          <button id="play-button">Play</button>
-        </div>
-        <div>
-          <img src="http://www.endlessicons.com/wp-content/uploads/2012/11/reset-icon-614x460.png" id="reset" onclick = "Reset()" />
-        </div>
-
-                   </div>
 
                  </div>
 
@@ -160,11 +118,7 @@
             </div>
 
 
-              <div class="leaflet-sidebar-pane" id="settings">
-                  <h1 class="leaflet-sidebar-header">Settings<span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
-                  <h1>Hide/Show statistics</h1>
-                  <input type="checkbox" id="hideStats" value="0">Hide statistics<br>
-              </div>
+
           </div>
 
           <!-- Divide the screen into three parts-->
@@ -210,11 +164,20 @@
         // Map
         var map = L.map('map', {
             center: [19.2436590371, 96.8861699425],
-            zoom: 9,
-            minZoom: 4,
+            zoom: 5,
+            minZoom: 5,
             maxZoom: 9,
             layers: [osm]
         });
+
+        let bounds_map = map.getBounds();
+        console.log(bounds_map._northEast.lat);
+
+        bounds_map._northEast.lat += 0.1;
+        bounds_map._northEast.lin+= 0.1;
+        bounds_map._southWest.lat -= 0.1;
+        bounds_map._southWest.lin -= 0.1;
+        map.setMaxBounds(bounds_map);
 
         var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "Stamen Toner": toner, "Without background": white};
 
@@ -222,30 +185,26 @@
           currentLayer.bringToFront();
         });
 
-        // Title
-        var title = L.control();
+        // Title, 'ctl title'
+        var title = L.control({position: 'bottomleft'});
         title.onAdd = function(map) {
-	        this._div = L.DomUtil.create('div', 'ctl title');
-	        this.update();
+	        this._div = L.DomUtil.create('div');
+            let startPoint = {'lat': 19.2436590371, 'lin': 96.8861699425}
+	        this.update(startPoint['lat'], startPoint['lin'], nearestPoint(startPoint), 'Mandalay');
 	        return this._div;
         };
-        title.update = function(props) {
-	        this._div.innerHTML = "Outputs Seasonal Water Yield Myanmar";
+        title.update = function(lat, log, val, canton) {
+            console.log(lat);
+	        this._div.innerHTML = `<div class="leaflet-control-layers leaflet-control-layers-expanded" style="width:145px;height:90px;background:gray">
+                <span>canton: ` + canton.toString() + `</span>
+                <span>Longtitude: ` + log.toString().substr(0,5) + `</span>
+                <span>Latitude:   ` + lat.toString().substr(0,5) + `<br /></span>
+                <span>Value: ` + val.toString().substr(0,5) + ` </span>
+             </div>`;
         };
         title.addTo(map);
 
-        // Note
-        var src = 'Generated by <a href="http://www.klokan.cz/projects/gdal2tiles/">GDAL2Tiles</a>, Copyright &copy; 2008 <a href="http://www.klokan.cz/">Klokan Petr Pridal</a>,  <a href="http://www.gdal.org/">GDAL</a> &amp; <a href="http://www.osgeo.org/">OSGeo</a> <a href="http://code.google.com/soc/">GSoC</a>';
-        var title = L.control({position: 'bottomleft'});
-        title.onAdd = function(map) {
-	        this._div = L.DomUtil.create('div', 'ctl src');
-	        this.update();
-	        return this._div;
-        };
-        title.update = function(props) {
-	        this._div.innerHTML = src;
-        };
-        title.addTo(map);
+
 
          // Use the custom grouped layer control, not "L.control.layers"
         L.control.layers(basemaps, null).addTo(map);
@@ -259,9 +218,11 @@
 
         var sidebar = L.control.sidebar('sidebar', {
           position : "right",
-          autopan : true
+          autopan : false
         }).addTo(map);
-        sidebar.open('home');
+        
+        // make the side bar close
+        //sidebar.open('home');
 
         // Obtain the data for the sidebar
         let sidebar_element = d3.select('.leaflet-sidebar-content');
@@ -668,16 +629,21 @@
 
             // do something with response
             if (canton != null){
-                popup.setLatLng(e.latlng)
-                .setContent("Position " + e.latlng.toString() + '\nCanton is ' + canton.toString() + '\nValue is ' + nearestP.toString())
-                .openOn(map)
+                // popup.setLatLng(e.latlng)
+                // .setContent("Position " + e.latlng.toString() + '\nCanton is ' + canton.toString() + '\nValue is ' + nearestP.toString())
+                // .openOn(map)
+                console.log(canton)
+                title.update(data['lat'], data['lin'], nearestP, canton);
+                //title.addTo(map);
+                map.flyTo([cantonCenter[canton]["lat"], cantonCenter[canton]["lin"]], cantonCenter[canton]["zoom"]) 
+
                 canton = null
             }
-            else {
-                popup.setLatLng(e.latlng)
-                .setContent("Position " + e.latlng.toString() + '\nValue is ' + nearestP.toString())
-                .openOn(map)
-            }
+            // else {
+            //     popup.setLatLng(e.latlng)
+            //     .setContent("Position " + e.latlng.toString() + '\nValue is ' + nearestP.toString())
+            //     .openOn(map)
+            // }
 
         });
 
@@ -755,7 +721,7 @@
         });
 
         // Fit to overlay bounds (SW and NE points with (lat, lon))
-        map.fitBounds([[9.92035336588, 101.633885799], [28.5669647084, 92.1384540862]]);
+        // map.fitBounds([[9.92035336588, 101.633885799], [28.5669647084, 92.1384540862]]);
 
         </script>
 

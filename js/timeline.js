@@ -56,7 +56,7 @@ slider.append("line")
 
 slider.insert("g", ".track-overlay")
     .attr("class", "ticks")
-    .attr("transform", "translate(0," + 15 + ")")
+    .attr("transform", "translate(0," + 25 + ")")
   .selectAll("text")
     .data(x_ticks) //number of ticks
     .enter()

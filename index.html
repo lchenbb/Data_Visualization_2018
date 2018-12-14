@@ -13,6 +13,9 @@
             <link rel="stylesheet" href="css/leaflet-sidebar.css" />
             <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
             <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+            <link href="css/radio-input-group.css" rel="stylesheet">
+            <link href="css/button.css" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
 
             <link href="css/bootstrap-tabs-x-bs4.css" media="all" rel="stylesheet" type="text/css" />
 
@@ -48,7 +51,7 @@
 
                 .split {
                     float:left !important;
-                    height: 100% !important; 
+                    height: 100% !important;
                     width: 33.33% !important;
                     border: 1px  dashed;
                   }
@@ -144,12 +147,12 @@
                    <div class="tab-pane fade" id="timelineView" role="tabpanel" aria-labelledby="timeline-tab">
 
 
-                    <div id="vis">
+                    <!--<div id="vis">
                       <button id="play-button">Play</button>
                     </div>
                     <div>
                       <img src="http://www.endlessicons.com/wp-content/uploads/2012/11/reset-icon-614x460.png" id="reset" onclick = "Reset()" />
-                    </div>
+                    </div>-->
 
                    </div>
 
@@ -159,21 +162,61 @@
               </div>
             </div>
 
-
-              <div class="leaflet-sidebar-pane" id="settings">
-                  <h1 class="leaflet-sidebar-header">Settings<span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
-                  <h1>Hide/Show statistics</h1>
-                  <input type="checkbox" id="hideStats" value="0">Hide statistics<br>
-              </div>
+            <div class="leaflet-sidebar-pane" id="settings">
+                <h1 class="leaflet-sidebar-header">Settings<span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+                <h1>Hide/Show statistics</h1>
+                <input type="checkbox" id="hideStats" value="0">Hide statistics<br>
+            </div>
           </div>
 
           <!-- Divide the screen into three parts-->
           <div id="ctl_panel_div" class="split">
             <p style="font-size:20px">Control panel</p>
+            <form class="form">
+              <p style="font-size:18px">Choose data</p>
+              <div class="inputGroup">
+                <input id="radio1" name="radio" type="radio"/>
+                <label for="radio1">Baseflow</label>
+              </div>
+              <div class="inputGroup">
+                <input id="radio2" name="radio" type="radio"/>
+                <label for="radio2">Quickflow</label>
+              </div>
+            </form>
+
+            <form class="form">
+              <p style="font-size:18px">Canton search</p>
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                  Dropdown button
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a class="dropdown-item" href="#">Action</a>
+                  <a class="dropdown-item" href="#">Another action</a>
+                  <a class="dropdown-item" href="#">Something else here</a>
+                </div>
+                <button style="margin-left:20px" type="button" class="btn btn-outline-primary">Search</button>
+              </div>
+            </form>
+
+            <form class="form">
+              <p>
+                Timeline
+              </p>
+              <div id="vis" style="background-color:lightblue;height:120px">
+              </div>
+              <button id="play-button">Play</button>
+              <img src="http://www.endlessicons.com/wp-content/uploads/2012/11/reset-icon-614x460.png" id="reset" onclick = "Reset()" />
+            </form>
+
+
           </div>
+
+
+
           <div id="stat_div" class="split" style="background-color:gray">
             <p style="font-size:20px">Statistics</p>
-            
+
           </div>
           <div id="map" class="sidebar-map split" style="right:0 !important"></div>
 
@@ -395,7 +438,7 @@
                         // Set the canton
                         canton = d.properties['NAME_1'];
                         console.log(d.properties['NAME_1']);
-                        
+
                         // Draw the statistics of canton
 
                         // Get statistics
@@ -449,7 +492,7 @@
                                         .attr('id', '#stat_group')
                                         .attr('transform',
                                             'translate(' + margin.left + ',' + (margin.top + height_total - height_stat - height_tick - height_brush) + ')');
-                        
+
                         // Build statistics plot group
                         let stat_plot_g = stat_g.append('g')
                                                     .attr('id', 'stat_plot_group');
@@ -473,7 +516,7 @@
                         // Plot rectangles
                         let bar_width = width / init_length;
 
-                        
+
                         let bars = stat_plot_g.selectAll('g')
                                 .data(counts.slice(init_index, init_index + init_length))
                                 .enter()
@@ -484,7 +527,7 @@
 
                         bars.append('rect')
                                 .attr('y', (d, i) => y_scale(d))
-                                .attr('height', (d, i) => 
+                                .attr('height', (d, i) =>
                                     height_stat - y_scale(d))
                                 .attr('width', bar_width)
                                 .attr('fill', (d) => color_scale(d));
@@ -515,7 +558,7 @@
                                                     .attr('transform', 'translate(0,' + (height_stat + 18 + height_brush) + ')')
                                                     .call(brush_axis);
 
-                        // Add outlier indication 
+                        // Add outlier indication
                         brush_axis_g.append('g')
                                         .attr('text', '>' + max_count)
                                         .attr('transform', 'translate(' + width + ',' + (height_stat + height_brush + 25) + ')')
@@ -549,15 +592,15 @@
                                             .extent([[0, 0],
                                                 [width, height_brush]])
                                             .on('end', function() {
-                                                
+
                                                 if (!d3.event.sourceEvent)
                                                     return;
-                                                
+
                                                 L.DomEvent.stopPropagation(d3.event);
                                                 console.log(d3.event.selection);
 
                                                 let sel_result = d3.event.selection;
-                                                let new_domain; 
+                                                let new_domain;
                                                 let new_index;
                                                 if (sel_result === null){
                                                     // define restoration to base case event
@@ -593,7 +636,7 @@
                                                 y_scale.domain([0, max_count]);
                                                 y_axis.scale(y_scale);
                                                 y_axis_g.call(y_axis);
-                                                
+
                                                 // Create new bar width
                                                 bar_width = width / (new_index[1] - new_index[0] + 1);
 
@@ -634,7 +677,7 @@
                                             });
 
                         // Prevent map from moving while we are focused on brushing
-                        
+
                         stat_brushX.on('brush', function(){
                                                     // Keep the map static
                                                     map.dragging.disable();
@@ -646,7 +689,7 @@
                                                     if (map.tap) map.tap.disable();
                                                     document.getElementById('map').style.cursor='default';
                                                 });
-                        
+
                         stat_brush_g.call(stat_brushX);
 
                     });
@@ -656,7 +699,7 @@
                     .style('fill-opacity', 0);
                 d3.select(this).style('fill-opacity', 0.6);
             });
-            
+
             let bounds = gen_path.bounds(results[0]);
             let top_left = bounds[0];
             let bottom_right = bounds[1];

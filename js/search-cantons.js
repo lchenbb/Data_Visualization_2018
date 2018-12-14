@@ -5,6 +5,12 @@ let dropdown = document.getElementById("dropdownList");
 
 function addElementsToList() {
   for(var canton of cantons) {
-    $('#dropdownList').append('<a class="dropdown-item" href="#">' + canton + '</a>');
+    $('#dropdownList').append('<li><a class="dropdown-item" href="#">' + canton + '</a></li>');
   }
+
+  $(".dropdown-menu li").click(function(){
+    console.log("here");
+    $(this).parents(".dropdown").find('#dropdownSearch').html($(this).text() + ' <span class="caret"></span>');
+    $(this).parents(".dropdown").find('#dropdownSearch').val($(this).data('value'));
+  });
 }

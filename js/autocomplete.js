@@ -124,4 +124,4 @@ cantons.forEach((d, i) => {
 })
 
 /*initiate the autocomplete function on the "myInput" element, and pass along the cantons array as possible autocomplete values:*/
-autocomplete(document.getElementById("myInput"), cantons);
+//autocomplete(document.getElementById("myInput"), cantons);

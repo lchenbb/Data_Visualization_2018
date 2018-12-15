@@ -12,4 +12,9 @@ function addElementsToList() {
     $(this).parents(".dropdown").find('#dropdownSearch').html($(this).text() + ' <span class="caret"></span>');
     $(this).parents(".dropdown").find('#dropdownSearch').val($(this).data('value'));
   });
+
+  $(".dropdown-menu li").click(function(){
+    $(this).parents(".dropdown").find('#dropdownSearchTimeline').html($(this).text() + ' <span class="caret"></span>');
+    $(this).parents(".dropdown").find('#dropdownSearchTimeline').val($(this).data('value'));
+  });
 }

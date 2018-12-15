@@ -12,7 +12,7 @@ var startDate = new Date("2018-01-01"), //before the first date of host
     endDate = new Date("2018-12-31"); //after the last date of host
 
 var marginTL = {top:0, right:10, bottom:0, left:10}, //change for the format
-    widthTL = 350 - marginTL.left - marginTL.right,
+    widthTL = 330 - marginTL.left - marginTL.right,
     heightTL = 100 - marginTL.top - marginTL.bottom;
 
 var svgTL = d3v4.select("#vis")

@@ -198,10 +198,10 @@
         let bounds_map = map.getBounds();
         console.log(bounds_map._northEast.lat);
 
-        bounds_map._northEast.lat += 1;
-        bounds_map._northEast.lin+= 1;
-        bounds_map._southWest.lat -= 1;
-        bounds_map._southWest.lin -= 1;
+        bounds_map._northEast.lat += 2;
+        bounds_map._northEast.lin+= 2;
+        bounds_map._southWest.lat -= 2;
+        bounds_map._southWest.lin -= 2;
         map.setMaxBounds(bounds_map);
 
         var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "Stamen Toner": toner, "Without background": white};

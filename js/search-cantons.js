@@ -9,7 +9,6 @@ function addElementsToList() {
   }
 
   $(".dropdown-menu li").click(function(){
-    console.log("here");
     $(this).parents(".dropdown").find('#dropdownSearch').html($(this).text() + ' <span class="caret"></span>');
     $(this).parents(".dropdown").find('#dropdownSearch').val($(this).data('value'));
   });

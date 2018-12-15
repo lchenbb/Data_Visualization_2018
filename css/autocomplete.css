@@ -54,3 +54,5 @@ input[type=submit] {
   background-color: DodgerBlue !important; 
   color: #ffffff; 
 }
+
+body { margin:0; padding:0; }

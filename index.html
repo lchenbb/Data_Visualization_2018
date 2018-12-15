@@ -96,14 +96,15 @@
             <form class="form">
               <p style="font-size:18px">Canton search</p>
               <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                  Dropdown button
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownSearch" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                  Choose canton
+                  <span class="caret"></span>
                 </button>
-                <div style="height: auto;max-height:100px;overflow-x: hidden;" class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="dropdownList">
-                  <a class="dropdown-item" href="#">Action</a>
-                </div>
+                <ul style="height:auto;max-height:200px;overflow-x:hidden;" class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="dropdownList">
+                </ul>
                 <button style="margin-left:20px" type="button" class="btn btn-outline-primary">Search</button>
               </div>
+
             </form>
 
             <div class="autocomplete" style="width:300px;">
@@ -117,7 +118,7 @@
               <p>
                 Timeline
               </p>
-              <div id="vis" style="background-color:lightblue;height:120px">
+              <div id="vis" style="height:120px">
               </div>
               <button id="play-button">Play</button>
               <img src="http://www.endlessicons.com/wp-content/uploads/2012/11/reset-icon-614x460.png" id="reset" onclick = "Reset()" />
@@ -713,49 +714,6 @@
             }
           });
         }
-
-        // Declare checkbox listeners
-        let checkboxHideStats = document.getElementById("hideStats");
-        checkboxHideStats.addEventListener('change', () => {
-          if(checkboxHideStats.checked) {
-            // hide stats;
-            stat_svg.attr("visibility", "hidden");
-          } else {
-            // show stats
-            stat_svg.attr("visibility", "visible");
-          }
-        });
-
-        var head = document.getElementsByTagName('head')[0];
-
-        var script = document.createElement('script');
-        script.src = "data/B_flow_retention/heat/temp.js";
-        //script.src = "data/B_historical_change/heat/temp.js";
-        script.type = 'text/javascript';
-
-        head.appendChild(script)
-
-        let heatIncrease;
-        let heatDecrease;
-        let checkboxIncreaseHeat = document.getElementById("increaseHeat");
-        checkboxIncreaseHeat.addEventListener('change', () => {
-            if(checkboxIncreaseHeat.checked) {
-                heatIncrease = L.heatLayer(heatmapIncrease, {radius:7,}).addTo(map);
-            } else {
-                map.removeLayer(heatIncrease);
-            }
-        });
-
-        let checkboxDecreaseHeat = document.getElementById("decreaseHeat");
-        checkboxDecreaseHeat.addEventListener('change', () => {
-            if(checkboxDecreaseHeat.checked) {
-                heatDecrease = L.heatLayer(heatmapDecrease, {radius:7,  gradient : { 0.0: 'blue',
-                  0.5: 'yellow',
-                  1.0: 'red'}}).addTo(map);
-            } else {
-                map.removeLayer(heatDecrease);
-            }
-        });
 
         // Fit to overlay bounds (SW and NE points with (lat, lon))
         // map.fitBounds([[9.92035336588, 101.633885799], [28.5669647084, 92.1384540862]]);

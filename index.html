@@ -77,13 +77,9 @@
           <script src="lib/leaflet-sidebar.js"></script>
 
           <!-- Divide the screen into three parts-->
-          <div id="ctl_panel_div" class="split" style="height:100%; border: 2px solid black;">
-          <fieldset>
-            <legend>
-                <b>Control Panel</b>
-            </legend>
-            <p style="font-size:20px"</p>
+          <div id="ctl_panel_div" class="split" style="border: 2px solid black">
             <form class="form">
+              <p style="font-size:20px">Control panel</p>
               <p style="font-size:18px">Choose data</p>
               <div class="inputGroup">
                 <input id="radio1" name="myRadios" type="radio" value="0"/>
@@ -92,6 +88,10 @@
               <div class="inputGroup">
                 <input id="radio2" name="myRadios" type="radio" value="1"/>
                 <label for="radio2">Quickflow</label>
+              </div>
+              <div class="inputGroup">
+                <input id="radio3" name="myRadios" type="radio" value="null"/>
+                <label for="radio3">No data</label>
               </div>
             </form>
 
@@ -107,30 +107,44 @@
                 <button style="margin-left:20px" type="button" class="btn btn-outline-primary">Search</button>
               </div>
 
+              <div class="autocomplete" style="margin-left:50px;">
+                  <input id="myInput" type="text" name="myCountry" placeholder="State">
+              </div>
+              <button type="button" class="btn-success" onclick="getInput()">Search</button>
+
             </form>
-
-            <div class="autocomplete" style="width:300px;">
-                <input id="myInput" type="text" name="myCountry" placeholder="State">
-            </div>
-       
-
-            <button type="button" class="btn-success" onclick="getInput()">Search</button>
 
             <form class="form">
-              <p>
-                Timeline
-              </p>
-              <div id="vis" style="height:120px">
+              <div>
+                <p style="font-size:18px">Timeline</p>
               </div>
-              <button id="play-button">Play</button>
-              <img src="http://www.endlessicons.com/wp-content/uploads/2012/11/reset-icon-614x460.png" id="reset" onclick = "Reset()" />
+
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownSearchTimeline" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                  Choose dataset
+                  <span class="caret"></span>
+                </button>
+                <ul style="height:auto;max-height:200px;overflow-x:hidden;" class="dropdown-menu timeline" aria-labelledby="dropdownMenuButton" id="dropdownListTimeline">
+                  <li><a class="dropdown-item" href="#" id="timeline-item1" name="timelineItems"> Historical </a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item2" name="timelineItems"> RCP:45 2020 25%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item3" name="timelineItems"> RCP:45 2020 25% allag</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item4" name="timelineItems"> RCP:45 2040 25%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item5" name="timelineItems"> RCP:45 2040 25% allag</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item6" name="timelineItems"> RCP:85 2020 75%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item7" name="timelineItems"> RCP:85 2040 75%</a></li>
+                </ul>
+              </div>
+
+              <div>
+
+              <span style="float:left"><div style="width:340px" id="vis" style="height:120px"></div></span>
+              <span style="float:left"><button id="play-button" style="margin-top:25px;margin-left:10px">Play</button></span>
+              <span style="float:left;width:40px">
+                <img src="http://www.endlessicons.com/wp-content/uploads/2012/11/reset-icon-614x460.png" style="margin-top:17px;" id="reset" onclick = "Reset()" />
+              </span>
+              </div>
             </form>
-
-            </fieldset>
           </div>
-
-
-
           <div id="stat_div" class="split" style="background-color:gray">
             <p style="font-size:20px">Statistics</p>
 
@@ -140,30 +154,28 @@
         <script src='data/mapList.js'></script>
         <script src='js/d3v4.js'></script>
         <script src='js/autocomplete.js'></script>
-        <script src='data/qf_historical_12months/qf1.js'></script>
-        <script src='data/qf_historical_12months/qf2.js'></script>
-        <script src='data/qf_historical_12months/qf3.js'></script>
-        <script src='data/qf_historical_12months/qf4.js'></script>
-        <script src='data/qf_historical_12months/qf5.js'></script>
-        <script src='data/qf_historical_12months/qf6.js'></script>
-        <script src='data/qf_historical_12months/qf7.js'></script>
-        <script src='data/qf_historical_12months/qf8.js'></script>
-        <script src='data/qf_historical_12months/qf9.js'></script>
-        <script src='data/qf_historical_12months/qf10.js'></script>
-        <script src='data/qf_historical_12months/qf11.js'></script>
-        <script src='data/qf_historical_12months/qf12.js'></script>
         <script src='js/timeline.js'></script>
         <script src='js/fengyu.js'></script>
         <script src='js/search-cantons.js'></script>
 
         <script>
 
+        // Load heatmap data
+        $.getScript("data/qf_historical_12months/qf_historical_12months.js", function( data, textStatus, jqxhr ) {
+          console.log("Load was performed.");
+        });
+
+        // Add cantons to dropdown list
         addElementsToList();
 
+        // Remove the default behavior of a button
         $("#play-button").click( function(event) {
            event.preventDefault();
            console.log('clean the default');
         });
+
+        setDropdownTimeline('Historical');
+        setListenersDropdownTimeline();
 
         /* **** Leaflet **** */
 
@@ -675,7 +687,7 @@
                 console.log(canton)
                 title.update(data['lat'], data['lin'], nearestP, canton);
                 //title.addTo(map);
-                
+
 
                 canton = null
             }
@@ -709,6 +721,7 @@
               currentLayer.bringToFront();
               createD3LegendBox(stat_svg, parseInt(this.value, 10));
             }
+            
             if(this.value === "null") {
               map.removeLayer(currentLayer);
               currentLayer = undefined;

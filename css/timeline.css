@@ -24,9 +24,10 @@ top: 30px;
 }
 
 #reset {
-height: 50px;
-width: 66px;
+height: 45px;
+width: 60px;
 position: relative;
+cursor:pointer;
 }
 
 #play-button {
@@ -37,10 +38,10 @@ border-radius: 3px;
 border: white;
 color: white;
 margin: 0;
-padding: 0 12px;
+padding: 0px;
 width: 60px;
 cursor: pointer;
-height: 30px;
+height: 35px;
 }
 
 #play-button:hover {

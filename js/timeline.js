@@ -1,3 +1,4 @@
+const numberItems = 7;
 //  get set the time format in d3
 // use to return month
 var formatYearMonth = d3v4.timeFormat("%m %Y");
@@ -6,6 +7,7 @@ var formatYearMonth2 = d3v4.timeFormat("%b %Y");
 
 var currentHeatmap = undefined;
 var heatmaps = [];
+var indexHeatmaps = 1;
 
 // set the data
 var startDate = new Date("2018-01-01"), //before the first date of host
@@ -139,7 +141,8 @@ function showHeatMap(index) {
   if(currentHeatmap !== undefined) {
     map.removeLayer(currentHeatmap);
   }
-  let heatmap = L.heatLayer(eval("qf_" + index), {
+
+  let heatmap = L.heatLayer(eval(getVariableNameHeatmap(index)), {
     radius:10,
     max:860,
   }).addTo(map);
@@ -193,4 +196,105 @@ function Reset() {
 
     console.log(formatYearMonth(endDate).split(" ")[0]);
   // more detailed needed to implement
+}
+
+function setDropdownTimeline(value) {
+  $(".dropdown").find('#dropdownSearchTimeline').html(value + ' <span class="caret"></span>');
+  $(".dropdown").find('#dropdownSearchTimeline').val(value);
+}
+
+function setListenersDropdownTimeline() {
+  $("#timeline-item1").click(function(e){
+    loadTimelineData(1);
+  });
+
+  $("#timeline-item2").click(function(e){
+    loadTimelineData(2);
+  });
+
+  $("#timeline-item3").click(function(e){
+    loadTimelineData(3);
+  });
+
+  $("#timeline-item4").click(function(e){
+    loadTimelineData(4);
+  });
+
+  $("#timeline-item5").click(function(e){
+    loadTimelineData(5);
+  });
+
+  $("#timeline-item6").click(function(e){
+    loadTimelineData(6);
+  });
+
+  $("#timeline-item7").click(function(e){
+    loadTimelineData(7);
+  });
+}
+
+function loadTimelineData(index) {
+  $.getScript(getPathFromIndex(index), function(data, textStatus, jqxhr) {
+    console.log("Load was performed with index: " + index);
+    indexHeatmaps = index;
+  });
+}
+
+function getPathFromIndex(index) {
+  let path = "";
+  switch(index) {
+    case 1:
+      path = "data/qf_historical_12months/qf_historical_12months.js";
+      break;
+    case 2:
+      path = "data/qfData/rcp45_2020_25pct.js"
+      break;
+    case 3:
+      path = "data/qfData/rcp45_2020_25pct_allag.js"
+      break;
+    case 4:
+      path = "data/qfData/rcp45_2040_25pct.js";
+      break;
+    case 5:
+      path = "data/qfData/rcp45_2040_25pct_allag.js";
+      break;
+    case 6:
+      path = "data/qfData/rcp85_2020_75pct.js";
+      break;
+    case 7:
+      path = "data/qfData/rcp85_2040_75pct.js";
+      break;
+    default:
+  }
+  return path;
+}
+
+function getVariableNameHeatmap(index) {
+  console.log(indexHeatmaps);
+  var varName = "";
+  switch(indexHeatmaps) {
+    case 1:
+      varName = "qf_" + index;
+      break;
+    case 2:
+      varName = "qf_" + index + "_rcp45_2020_25pct";
+      break;
+    case 3:
+      varName = "qf_" + index + "_rcp45_2020_25pct_allag";
+      break;
+    case 4:
+      varName = "qf_" + index + "_rcp45_2040_25pct";
+      break;
+    case 5:
+      varName = "qf_" + index + "_rcp45_2040_25pct_allag";
+      break;
+    case 6:
+      varName = "qf_" + index + "_rcp85_2020_75pct";
+      break;
+    case 7:
+      varName = "qf_" + index + "_rcp85_2040_75pct";
+      break;
+    default:
+  }
+  return varName;
 }

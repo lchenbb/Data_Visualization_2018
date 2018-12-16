@@ -89,6 +89,10 @@
                 <input id="radio2" name="myRadios" type="radio" value="1"/>
                 <label for="radio2">Quickflow</label>
               </div>
+              <div class="inputGroup">
+                <input id="radio3" name="myRadios" type="radio" value="null"/>
+                <label for="radio3">No data</label>
+              </div>
             </form>
 
             <form class="form">
@@ -121,15 +125,13 @@
                   <span class="caret"></span>
                 </button>
                 <ul style="height:auto;max-height:200px;overflow-x:hidden;" class="dropdown-menu timeline" aria-labelledby="dropdownMenuButton" id="dropdownListTimeline">
-                  <li><a class="dropdown-item" href="#"> Historical </a></li>
-                  <li><a class="dropdown-item" href="#"> RCP:45 2020 25%</a></li>
-                  <li><a class="dropdown-item" href="#"> RCP:45 2020 75%</a></li>
-                  <li><a class="dropdown-item" href="#"> RCP:45 2040 25%</a></li>
-                  <li><a class="dropdown-item" href="#"> RCP:45 2040 75%</a></li>
-                  <li><a class="dropdown-item" href="#"> RCP:85 2020 25%</a></li>
-                  <li><a class="dropdown-item" href="#"> RCP:85 2020 75%</a></li>
-                  <li><a class="dropdown-item" href="#"> RCP:85 2040 25%</a></li>
-                  <li><a class="dropdown-item" href="#"> RCP:85 2040 75%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item1" name="timelineItems"> Historical </a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item2" name="timelineItems"> RCP:45 2020 25%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item3" name="timelineItems"> RCP:45 2020 25% allag</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item4" name="timelineItems"> RCP:45 2040 25%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item5" name="timelineItems"> RCP:45 2040 25% allag</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item6" name="timelineItems"> RCP:85 2020 75%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item7" name="timelineItems"> RCP:85 2040 75%</a></li>
                 </ul>
               </div>
 
@@ -155,7 +157,6 @@
         <script src='js/timeline.js'></script>
         <script src='js/fengyu.js'></script>
         <script src='js/search-cantons.js'></script>
-        <script src='js/timeline_data.js'></script>
 
         <script>
 
@@ -174,6 +175,7 @@
         });
 
         setDropdownTimeline('Historical');
+        setListenersDropdownTimeline();
 
         /* **** Leaflet **** */
 
@@ -719,6 +721,7 @@
               currentLayer.bringToFront();
               createD3LegendBox(stat_svg, parseInt(this.value, 10));
             }
+            
             if(this.value === "null") {
               map.removeLayer(currentLayer);
               currentLayer = undefined;

@@ -208,12 +208,12 @@
         });
 
         let bounds_map = map.getBounds();
-        console.log(bounds_map._northEast.lat);
+        console.log(bounds_map)
 
-        bounds_map._northEast.lat += 5;
-        bounds_map._northEast.lin+= 5;
-        bounds_map._southWest.lat -= 10;
-        bounds_map._southWest.lin -= 10;
+        bounds_map._northEast.lat += 20;
+        bounds_map._northEast.lin+= 20;
+        bounds_map._southWest.lat -= 20;
+        bounds_map._southWest.lin -= 20;
         map.setMaxBounds(bounds_map);
 
         var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "Stamen Toner": toner, "Without background": white};

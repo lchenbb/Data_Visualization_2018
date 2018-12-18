@@ -55,11 +55,25 @@
             font-size: 10pt;
         }
 
-        .split {
+        .split1 {
+            float:left !important;
+            height: 100% !important;
+            width: 25% !important;
+            border: 1px solid black;
+        }
+
+        .split2 {
+            float:left !important;
+            height: 100% !important;
+            width: 41.66% !important;
+            border: 1px solid black;
+        }
+
+        .split3 {
             float:left !important;
             height: 100% !important;
             width: 33.33% !important;
-            border: 1px  dashed;
+            border: 1px solid black;
         }
 
         /* Control the left side */
@@ -83,7 +97,7 @@
           <script src="lib/leaflet-sidebar.js"></script>
 
           <!-- Divide the screen into three parts-->
-          <div id="ctl_panel_div" class="split">
+          <div id="ctl_panel_div" class="split1">
             <form class="form">
               <p style="font-size:20px" >Control panel</p>
               <button id="button-intro" style="position:relative;bottom:20px">Guideline</button>
@@ -152,11 +166,11 @@
 
             </form>
           </div>
-          <div id="stat_div" class="split" style="background-color:gray">
+          <div id="stat_div" class="split2" style="background-color:gray">
             <p style="font-size:20px">Statistics</p>
 
           </div>
-          <div id="map" class="sidebar-map split" style="right:0;z-index:1;"></div>
+          <div id="map" class="sidebar-map split3" style="right:0;z-index:1;"></div>
 
         <script src='data/mapList.js'></script>
         <script src='js/d3v4.js'></script>

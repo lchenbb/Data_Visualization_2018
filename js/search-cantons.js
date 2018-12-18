@@ -8,13 +8,13 @@ function addElementsToList() {
     $('#dropdownList').append('<li><a class="dropdown-item" href="#">' + canton + '</a></li>');
   }
 
-  $(".dropdown-menu li").click(function () {
+  $("#dropdownList li").click(function () {
     $(this).parents(".dropdown").find('#dropdownSearch').html($(this).text() + ' <span class="caret"></span>');
     $(this).parents(".dropdown").find('#dropdownSearch').val($(this).data('value'));
     document.getElementById('myInput').value = $(this).text();
   });
 
-  $(".dropdown-menu li").click(function(){
+  $("#dropdownListTimeline li").click(function(){
     $(this).parents(".dropdown").find('#dropdownSearchTimeline').html($(this).text() + ' <span class="caret"></span>');
     $(this).parents(".dropdown").find('#dropdownSearchTimeline').val($(this).data('value'));
   });

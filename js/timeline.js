@@ -303,3 +303,11 @@ function getVariableNameHeatmap(index) {
   }
   return varName;
 }
+
+function hideTimelineElements() {
+  $("#timelineElements").hide();
+}
+
+function showTimelineElements() {
+  $("#timelineElements").show();
+}

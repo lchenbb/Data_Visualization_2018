@@ -24,11 +24,11 @@
             <link rel="stylesheet" href="/resources/demos/style.css">
             <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
             <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-          
+
             <script src="lib/leaflet.js"></script>
             <script src="lib/leaflet.groupedlayercontrol.min.js"></script>
-            <script src="src/colorMapLegend.js"></script>
-            <script src="src/colorDefs.js"></script>
+            <script src="js/colorMapLegend.js"></script>
+            <script src="js/colorDefs.js"></script>
             <script src="lib/leaflet-heat.js"></script>
             <script src="lib/jquery-3.3.1.min.js"></script>
             <script src="js/canton_center.js"></script>
@@ -104,7 +104,7 @@
 
             <form class="form" style="position:relative;bottom:50px">
               <p style="font-size:18px">Canton search</p>
-              <div class="dropdown" style="position:absolute">
+              <div class="dropdown" id="dropdownCantons" style="position:absolute">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownSearch" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                   Choose canton
                   <span class="caret"></span>
@@ -124,17 +124,17 @@
             </form>
             <br><br><br>
 
-            <form class="form" style="position:relative;bottom:80px">
+            <form class="form" style="position:relative;bottom:80px" id="timelineElements">
               <div>
                 <p style="font-size:18px">Timeline</p>
               </div>
 
-              <div class="dropdown">
+              <div class="dropdown" id="dropdownTimeline">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownSearchTimeline" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                   Choose dataset
                   <span class="caret"></span>
                 </button>
-                <ul style="height:auto;max-height:200px;overflow-x:hidden;position:absolute" class="dropdown-menu timeline" aria-labelledby="dropdownMenuButton" id="dropdownListTimeline">
+                <ul style="height:auto;max-height:200px;overflow-x:hidden;" class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="dropdownListTimeline">
                   <li><a class="dropdown-item" href="#" id="timeline-item1" name="timelineItems"> Historical </a></li>
                   <li><a class="dropdown-item" href="#" id="timeline-item2" name="timelineItems"> RCP:45 2020 25%</a></li>
                   <li><a class="dropdown-item" href="#" id="timeline-item3" name="timelineItems"> RCP:45 2020 25% allag</a></li>
@@ -145,11 +145,11 @@
                 </ul>
               </div>
 
-              <div>
-              <span style="float:left"><div style="width:340px" id="vis" style="height:120px"></div></span>
+
+              <div style="width:340px" id="vis" style="height:120px"></div>
               <div style="position:relative;bottom:30px;left:10px"><button id="play-button" display:inline-block>Play</button>
               <img src="http://www.endlessicons.com/wp-content/uploads/2012/11/reset-icon-614x460.png" id="reset" onclick = "Reset()" /></div>
-              </div>
+
             </form>
           </div>
           <div id="stat_div" class="split" style="background-color:gray">
@@ -164,11 +164,10 @@
         <script src='js/timeline.js'></script>
         <script src='js/fengyu.js'></script>
         <script src='js/search-cantons.js'></script>
-        
-            
-
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js'></script>
 
         <script>
+        hideTimelineElements();
 
         // Load heatmap data
         $.getScript("data/qf_historical_12months/qf_historical_12months.js", function( data, textStatus, jqxhr ) {
@@ -716,24 +715,23 @@
           value: "0"
         };
         map.addLayer(lyr0);
-        let currentLayer = eval("lyr" + prev.value);
         var baseflowLayer = eval("lyr0");
 
         for(var i = 0; i < radioButtons.length; i++) {
           radioButtons[i].addEventListener('change', function() {
             if(this.value !== "null") {
-              if(currentLayer !== undefined) {
-                map.removeLayer(currentLayer);
-              };
-
               prev = this;
-              //currentLayer = eval("lyr" + this.value);
               getCorrectLayerAndAddToMap(this.value);
+
+              if(this.value === 0) {
+                // Hide timeline
+              }
 
               createD3LegendBox(stat_svg, parseInt(this.value, 10));
             }
-            
+
             if(this.value === "null") {
+              hideTimelineElements();
               if(heatmapLayer !== undefined) {
                 map.removeLayer(heatmapLayer);
               }
@@ -741,7 +739,7 @@
               if(baseflowLayer !== undefined) {
                 map.removeLayer(baseflowLayer);
               }
-              removeColorBar();
+              removeAllLegend();
             }
           });
         }
@@ -752,19 +750,23 @@
           switch(parseInt(index, 10)) {
             // Baseflow
             case 0:
-              //currentLayer = eval("lyr" + index);
+              hideTimelineElements();
               if(heatmapLayer !== undefined) {
                 map.removeLayer(heatmapLayer);
               }
               map.addLayer(baseflowLayer);
               baseflowLayer.bringToFront();
               break;
+
             // Quickflow heatmaps
             case 1 :
+              showTimelineElements();
               map.removeLayer(baseflowLayer);
               showHeatMap(currentSliderPosition);
               map.addLayer(heatmapLayer);
               break;
+
+            // Other
             default:
               break;
           }
@@ -785,7 +787,7 @@
                 CantonMarker = new L.marker([cantonCenter[canton_search]["lat"], cantonCenter[canton_search]["lin"]]);
                 console.log('new cantonmarker');
                 CantonMarker.addTo(map);
-                
+
             }
             else if (!canton_search) {
                 alert("Please input the canton name")
@@ -905,12 +907,12 @@ img {vertical-align: middle;}
 }
 
 @-webkit-keyframes fade {
-  from {opacity: .4} 
+  from {opacity: .4}
   to {opacity: 1}
 }
 
 @keyframes fade {
-  from {opacity: .4} 
+  from {opacity: .4}
   to {opacity: 1}
 }
 
@@ -950,9 +952,9 @@ img {vertical-align: middle;}
 <br>
 
 <div style="text-align:center">
-  <span class="dot" onclick="currentSlide(1)"></span> 
-  <span class="dot" onclick="currentSlide(2)"></span> 
-  <span class="dot" onclick="currentSlide(3)"></span> 
+  <span class="dot" onclick="currentSlide(1)"></span>
+  <span class="dot" onclick="currentSlide(2)"></span>
+  <span class="dot" onclick="currentSlide(3)"></span>
 </div>
 </div>
 
@@ -990,15 +992,15 @@ function showSlides(n) {
   var i;
   var slides = document.getElementsByClassName("mySlides");
   var dots = document.getElementsByClassName("dot");
-  if (n > slides.length) {slideIndex = 1} 
+  if (n > slides.length) {slideIndex = 1}
   if (n < 1) {slideIndex = slides.length}
   for (i = 0; i < slides.length; i++) {
-      slides[i].style.display = "none"; 
+      slides[i].style.display = "none";
   }
   for (i = 0; i < dots.length; i++) {
       dots[i].className = dots[i].className.replace(" active", "");
   }
-  slides[slideIndex-1].style.display = "block"; 
+  slides[slideIndex-1].style.display = "block";
   dots[slideIndex-1].className += " active";
 }
 
@@ -1011,16 +1013,16 @@ function showSlidesauto() {
   var i;
   var slides = document.getElementsByClassName("mySlides");
   for (i = 0; i < slides.length; i++) {
-    slides[i].style.display = "none"; 
+    slides[i].style.display = "none";
   }
   slideIndex++;
-  if (slideIndex > slides.length) {slideIndex = 1} 
-  slides[slideIndex-1].style.display = "block"; 
+  if (slideIndex > slides.length) {slideIndex = 1}
+  slides[slideIndex-1].style.display = "block";
   setTimeout(showSlides, 5000); // Change image every 2 seconds
 }
 </script>
 
 
-        
-        </body>
-        </html>
+
+</body>
+</html>

@@ -97,22 +97,25 @@
 
             <form class="form">
               <p style="font-size:18px">Canton search</p>
-              <div class="dropdown">
+              <div class="dropdown" style="position:absolute">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownSearch" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                   Choose canton
                   <span class="caret"></span>
                 </button>
                 <ul style="height:auto;max-height:200px;overflow-x:hidden;" class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="dropdownList">
                 </ul>
-                <button style="margin-left:20px" type="button" class="btn btn-outline-primary">Search</button>
               </div>
 
-              <div class="autocomplete" style="margin-left:50px;">
-                  <input id="myInput" type="text" name="myCountry" placeholder="State">
+              <div class="autocomplete" style="margin-left:50px;position:absolute;left:130px">
+                  <input id="myInput" type="text" name="myCountry" placeholder="State" >
               </div>
-              <button type="button" class="btn-success" onclick="getInput()">Search</button>
+            <div>
+                <button type="button" class="btn btn-outline-primary" onclick="getInput()" style="position:relative;left:170px;top:60px">Search</button>
+                <button type="button" class="btn btn-outline-primary" onclick="resetInput()" style="position:relative;right:60px;top:60px">Reset</button>
+            </div>
 
             </form>
+            <br><br><br>
 
             <form class="form">
               <div>
@@ -124,7 +127,7 @@
                   Choose dataset
                   <span class="caret"></span>
                 </button>
-                <ul style="height:auto;max-height:200px;overflow-x:hidden;" class="dropdown-menu timeline" aria-labelledby="dropdownMenuButton" id="dropdownListTimeline">
+                <ul style="height:auto;max-height:200px;overflow-x:hidden;position:absolute" class="dropdown-menu timeline" aria-labelledby="dropdownMenuButton" id="dropdownListTimeline">
                   <li><a class="dropdown-item" href="#" id="timeline-item1" name="timelineItems"> Historical </a></li>
                   <li><a class="dropdown-item" href="#" id="timeline-item2" name="timelineItems"> RCP:45 2020 25%</a></li>
                   <li><a class="dropdown-item" href="#" id="timeline-item3" name="timelineItems"> RCP:45 2020 25% allag</a></li>
@@ -214,7 +217,7 @@
         bounds_map._northEast.lin+= 20;
         bounds_map._southWest.lat -= 20;
         bounds_map._southWest.lin -= 20;
-        // map.setMaxBounds(bounds_map);
+        map.setMaxBounds(bounds_map);
 
         var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "Stamen Toner": toner, "Without background": white};
 
@@ -732,6 +735,37 @@
 
         // Fit to overlay bounds (SW and NE points with (lat, lon))
         // map.fitBounds([[9.92035336588, 101.633885799], [28.5669647084, 92.1384540862]]);
+        var CantonMarker;
+        function getInput(){
+            let canton_search = document.getElementById("myInput").value
+            if (cantons_lower.includes(canton_search)){
+                console.log(canton_search);
+                map.flyTo([cantonCenter[canton_search]["lat"], cantonCenter[canton_search]["lin"]], cantonCenter[canton_search]["zoom"]);
+                if (CantonMarker){
+                    map.removeLayer(CantonMarker);
+                }
+                CantonMarker = new L.marker([cantonCenter[canton_search]["lat"], cantonCenter[canton_search]["lin"]]);
+                console.log('new cantonmarker');
+                CantonMarker.addTo(map);
+                
+            }
+            else if (!canton_search) {
+                alert("Please input the canton name")
+            }
+            else {
+                alert("Not exist!");
+            }
+        }
+
+        function resetInput(){
+            document.getElementById("myInput").value = "";
+            
+            $(this).parents(".dropdown").find('#dropdownSearch').html('Choose canton' + ' <span class="caret"></span>');
+            map.flyTo([19.2436590371, 96.8861699425], 5);
+            if (CantonMarker) {
+                map.removeLayer(CantonMarker);
+            }
+        }
 
         </script>
 

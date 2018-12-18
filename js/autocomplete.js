@@ -100,20 +100,6 @@ function autocomplete(inp, arr) {
   // });
 }
 
-function getInput(){
-  let canton_search = document.getElementById("myInput").value
-  if (cantons_lower.includes(canton_search)){
-    console.log(canton_search);
-    map.flyTo([cantonCenter[canton_search]["lat"], cantonCenter[canton_search]["lin"]], cantonCenter[canton_search]["zoom"]);
-    console.log('fly to')
-  }
-  else if (!canton_search) {
-    alert("Please input the canton name")
-  }
-  else {
-    alert("Not exist!");
-  }
-}
 /*An array containing all the country names in the world:*/
 var cantons = ["Ayeyarwady", "Bago", "Chin", "Kachin", "Kayah", "Kayin", "Magway",
 "Mandalay", "Mon", "Rakhine", "Sagaing", "Shan", "Tanintharyi", "Yangon"];

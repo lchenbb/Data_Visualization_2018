@@ -724,7 +724,7 @@
               currentLayer.bringToFront();
               createD3LegendBox(stat_svg, parseInt(this.value, 10));
             }
-            
+
             if(this.value === "null") {
               map.removeLayer(currentLayer);
               currentLayer = undefined;
@@ -747,7 +747,7 @@
                 CantonMarker = new L.marker([cantonCenter[canton_search]["lat"], cantonCenter[canton_search]["lin"]]);
                 console.log('new cantonmarker');
                 CantonMarker.addTo(map);
-                
+
             }
             else if (!canton_search) {
                 alert("Please input the canton name")
@@ -760,11 +760,13 @@
         function resetInput(){
             document.getElementById("myInput").value = "";
             
-            $(this).parents(".dropdown").find('#dropdownSearch').html('Choose canton' + ' <span class="caret"></span>');
             map.flyTo([19.2436590371, 96.8861699425], 5);
             if (CantonMarker) {
                 map.removeLayer(CantonMarker);
             }
+
+            $(".dropdown").find('#dropdownSearch').html('Choose canton' + ' <span class="caret"></span>');
+            $(".dropdown").find('#dropdownSearch').val($(this).data('value'));
         }
 
         </script>

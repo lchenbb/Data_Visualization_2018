@@ -5,6 +5,8 @@ var formatYearMonth = d3v4.timeFormat("%m %Y");
 // use to return in format Jan 2017 which is located under the slider
 var formatYearMonth2 = d3v4.timeFormat("%b %Y");
 
+var currentSliderPosition = 12;
+var heatmapLayer;
 var currentHeatmap = undefined;
 var heatmaps = [];
 var indexHeatmaps = 1;
@@ -133,6 +135,7 @@ function update(h) {
   var month = formatYearMonth(h).split(" ")[0];
   var year = formatYearMonth(h).split(" ")[1];
   console.log(month);
+  currentSliderPosition = parseInt(month, 10);
   showHeatMap(parseInt(month,10));
   // There should update a function here to show the heatmap
 }
@@ -147,6 +150,8 @@ function showHeatMap(index) {
     max:860,
   }).addTo(map);
   currentHeatmap = heatmap;
+  heatmapLayer = heatmap;
+  return heatmap;
 }
 
 function Switch(x){

@@ -710,27 +710,58 @@
         };
         map.addLayer(lyr0);
         let currentLayer = eval("lyr" + prev.value);
+        var baseflowLayer = eval("lyr0");
 
         for(var i = 0; i < radioButtons.length; i++) {
           radioButtons[i].addEventListener('change', function() {
             if(this.value !== "null") {
               if(currentLayer !== undefined) {
-                map.removeLayer(eval("lyr" + prev.value));
+                map.removeLayer(currentLayer);
               };
 
               prev = this;
-              currentLayer = eval("lyr" + this.value);
-              map.addLayer(currentLayer);
-              currentLayer.bringToFront();
+              //currentLayer = eval("lyr" + this.value);
+              getCorrectLayerAndAddToMap(this.value);
+
               createD3LegendBox(stat_svg, parseInt(this.value, 10));
             }
 
             if(this.value === "null") {
-              map.removeLayer(currentLayer);
-              currentLayer = undefined;
+              if(heatmapLayer !== undefined) {
+                map.removeLayer(heatmapLayer);
+              }
+
+              if(baseflowLayer !== undefined) {
+                map.removeLayer(baseflowLayer);
+              }
               removeColorBar();
             }
           });
+        }
+
+        function getCorrectLayerAndAddToMap(index) {
+          let layer;
+
+          switch(parseInt(index, 10)) {
+            // Baseflow
+            case 0:
+              //currentLayer = eval("lyr" + index);
+              if(heatmapLayer !== undefined) {
+                map.removeLayer(heatmapLayer);
+              }
+              map.addLayer(baseflowLayer);
+              baseflowLayer.bringToFront();
+              break;
+            // Quickflow heatmaps
+            case 1 :
+              map.removeLayer(baseflowLayer);
+              showHeatMap(currentSliderPosition);
+              map.addLayer(heatmapLayer);
+              break;
+            default:
+              break;
+          }
+
         }
 
         // Fit to overlay bounds (SW and NE points with (lat, lon))
@@ -759,7 +790,7 @@
 
         function resetInput(){
             document.getElementById("myInput").value = "";
-            
+
             map.flyTo([19.2436590371, 96.8861699425], 5);
             if (CantonMarker) {
                 map.removeLayer(CantonMarker);

@@ -16,7 +16,7 @@ var startDate = new Date("2018-01-01"), //before the first date of host
     endDate = new Date("2018-12-31"); //after the last date of host
 
 var marginTL = {top:0, right:10, bottom:0, left:10}, //change for the format
-    widthTL = 330 - marginTL.left - marginTL.right,
+    widthTL = 280 - marginTL.left - marginTL.right,
     heightTL = 100 - marginTL.top - marginTL.bottom;
 
 var svgTL = d3v4.select("#vis")
@@ -68,7 +68,7 @@ slider.insert("g", ".track-overlay")
     .attr("x", x)
     .attr("y", 0) // distance of tick to the slider
     .attr("text-anchor", "right")
-    .text(function(d) { return formatYearMonth2(d); });
+    .text(function(d) { return formatYearMonth2(d).split(" ")[0]; });
 
 var handle = slider.insert("circle", ".track-overlay")
     .attr("class", "handle")
@@ -79,7 +79,7 @@ var label = slider.append("text")
     .attr("class", "label")
     .attr("style", "font-size:10px")
     .attr("text-anchor", "middle")
-    .text(formatYearMonth2(endDate))
+    .text(formatYearMonth2(endDate).split(" ")[0])
     .attr("transform", "translate(0," + (-15) + ")") // position of label
     .attr("x", widthTL);
 
@@ -131,7 +131,7 @@ function update(h) {
   // update position and text of label according to slider scale
   handle.attr("cx", x(h));
   label.attr("x", x(h))
-       .text(formatYearMonth2(h));
+       .text(formatYearMonth2(h).split(" ")[0]);
   var month = formatYearMonth(h).split(" ")[0];
   var year = formatYearMonth(h).split(" ")[1];
   console.log(month);

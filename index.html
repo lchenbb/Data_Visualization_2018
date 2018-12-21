@@ -131,8 +131,9 @@
                   <input id="myInput" type="text" name="myCountry" placeholder="State" >
               </div>
             <div>
-                <button type="button" class="btn btn-outline-primary" onclick="getInput()" style="position:relative;left:170px;top:60px">Search</button>
+                <button type="button" class="btn btn-outline-primary" onclick="getInput()" style="position:relative;left:250px;top:60px">Search</button>
                 <button type="button" class="btn btn-outline-primary" onclick="resetInput()" style="position:relative;right:60px;top:60px">Reset</button>
+                <button type="button" class="btn btn-outline-primary" onclick="showSummary()" style="position:relative;right:30px;top:60px">Summary</button>
             </div>
 
             </form>
@@ -242,7 +243,7 @@
         console.log(bounds_map)
 
         bounds_map._northEast.lat += 20;
-        bounds_map._northEast.lin+= 20;
+        bounds_map._northEast.lin += 20;
         bounds_map._southWest.lat -= 20;
         bounds_map._southWest.lin -= 20;
         map.setMaxBounds(bounds_map);
@@ -366,6 +367,15 @@
         let typicals_rcp85_2020_75 = d3.json('./data/csv_quickflow/rcp85_2020_75pct/typical_provs.json');
         let typicals_rcp85_2040_75 = d3.json('./data/csv_quickflow/rcp85_2040_75pct/typical_provs.json');        
 
+        // Get summary data
+        let summary_bf_history = d3.json('./data/B_historical_change/typical_summary.json')
+        let summary_qf = d3.json('./data/monthly_qf/typical_summary.json');
+        let summary_rcp45_2020_25 = d3.json('./data/csv_quickflow/rcp45_2020_25pct/typical_summary.json');
+        let summary_rcp45_2020_25_allag = d3.json('./data/csv_quickflow/rcp45_2020_25pct_allag/typical_summary.json');
+        let summary_rcp45_2040_25 = d3.json('./data/csv_quickflow/rcp45_2040_25pct/typical_summary.json');
+        let summary_rcp45_2040_25_allag = d3.json('./data/csv_quickflow/rcp45_2040_25pct_allag/typical_summary.json');
+        let summary_rcp85_2020_75 = d3.json('./data/csv_quickflow/rcp85_2020_75pct/typical_summary.json');
+        let summary_rcp85_2040_75 = d3.json('./data/csv_quickflow/rcp85_2040_75pct/typical_summary.json');  
         // Get national baseflow data
         let national_data = d3.json('./data/national_data.json');
 
@@ -382,10 +392,13 @@
         Promise.all([map_promise, full_stat, national_data, typicals_qf, typicals_rcp45_2020_25,
                     typicals_rcp45_2020_25_allag, typicals_rcp45_2040_25,
                     typicals_rcp45_2040_25_allag, typicals_rcp85_2020_75,
-                    typicals_rcp85_2040_75]).then((results) => {
+                    typicals_rcp85_2040_75, summary_bf_history, summary_qf, summary_rcp45_2020_25,
+                    summary_rcp45_2020_25_allag, summary_rcp45_2040_25,
+                    summary_rcp45_2040_25_allag, summary_rcp85_2020_75,
+                    summary_rcp85_2040_75]).then((results) => {
 
             // Assign results to data
-            data = results.slice(1, 10);
+            data = results.slice(1, 18);
             console.log('input data', data);
             // Set promise finish to true
             promise_finish = true;
@@ -608,6 +621,20 @@
             show_stats('National', data);
         }
 
+        function showSummary(){
+            document.getElementById('myInput').value = '';
+
+            map.flyTo([19.2436590371, 96.8861699425], 5);
+            if (CantonMarker) {
+                map.removeLayer(CantonMarker);
+            }
+            $(".dropdown").find('#dropdownSearch').html('Choose canton' + ' <span class="caret"></span>');
+            $(".dropdown").find('#dropdownSearch').val($(this).data('value'));
+
+            // Show national stats
+            show_stats('Summary', data);
+
+        }
         </script>
 
 

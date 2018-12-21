@@ -242,10 +242,12 @@ function show_analysis(){
 
 	// Display new info
 	stat_elements_div.append('div')
-						.attr('id', 'Analysis');
+						.attr('id', 'Analysis')
+						.attr('max-height', '25%');
 
 	let ana_element = document.getElementById('Analysis');
 
+	ana_element.style.overflow = 'auto';
 	let type = d3.select("input[name='myRadios']:checked").property('value');
 
 	if (type == 0)

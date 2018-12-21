@@ -61,6 +61,7 @@
             min-height: 100% !important;
             width: 25% !important;
             border: 1px solid black;
+            overflow: auto;
         }
 
         .split2 {
@@ -101,7 +102,7 @@
           <!-- Divide the screen into three parts-->
           <div id="ctl_panel_div" class="split1">
             <form class="form">
-              <p style="font-size:20px" >Control panel</p>
+              <p style="font-size:20px">Control panel</p>
               <button id="button-intro" style="position:relative;bottom:20px">Guideline</button>
               <p style="font-size:18px;position:relative;bottom:20px">Choose data</p>
               <div class="inputGroup" style="position:relative;bottom:40px">
@@ -170,7 +171,7 @@
           </div>
           <div id="stat_div" class="split2" style="background-color:#A9A9A9">
             <p style="font-size:20px">Statistics</p>
-            <div id='stat_elements_div'></div>>
+            <div id='stat_elements_div' style='max-height:100%; overflow: auto'></div>>
           </div>
           <div id="map" class="sidebar-map split3" style="right:0;z-index:1;"></div>
 
@@ -197,7 +198,8 @@
         let WINDOW_HEIGHT = $('window').height();
 
         $('#stat_div').css({
-            'min-height': WINDOW_HEIGHT + 'px'
+            'min-height': WINDOW_HEIGHT + 'px',
+            'max-height': WINDOW_HEIGHT + 'px'
         });
         // Load heatmap data
         $.getScript("data/qf_historical_12months/qf_historical_12months.js", function( data, textStatus, jqxhr ) {
@@ -240,8 +242,8 @@
         // Map
         var map = L.map('map', {
             center: [19.2436590371, 96.8861699425],
-            zoom: 5,
-            minZoom: 5,
+            zoom: 6,
+            minZoom: 6,
             maxZoom: 9,
             layers: [osm]
         });
@@ -675,68 +677,66 @@ img {vertical-align: middle;}
   position: relative;
   margin: auto;
 }
-
-/* Next & previous buttons */
 .prev, .next {
-  cursor: pointer;
-  position: absolute;
-  top: 50%;
-  width: auto;
-  padding: 100%;
-  margin-top: -137.5%;
-  color: white;
-  font-weight: bold;
-  font-size: 112.5%;
-  transition: 0.6s ease;
-  border-radius: 0 18.75% 18.75% 0;
-  user-select: none;
+cursor: pointer;
+position: absolute;
+top: 50%;
+width: auto;
+padding: 16px;
+margin-top: -22px;
+color: white;
+font-weight: bold;
+font-size: 18px;
+transition: 0.6s ease;
+border-radius: 0 3px 3px 0;
+user-select: none;
 }
 
 /* Position the "next button" to the right */
 .next {
-  right: 0;
-  border-radius: 18.75% 0 0 18.75%;
+right: 0;
+border-radius: 3px 0 0 3px;
 }
 
 /* On hover, add a black background color with a little bit see-through */
 .prev:hover, .next:hover {
-  background-color: rgba(0,0,0,0.8);
+background-color: rgba(0,0,0,0.8);
 }
 
 /* Caption text */
 .text {
-  color: #f2f2f2;
-  font-size: 93.8%;
-  padding: 50% 75%;
-  position: absolute;
-  bottom: 50%;
-  width: 100%;
-  text-align: center;
+color: #f2f2f2;
+font-size: 15px;
+padding: 8px 12px;
+position: absolute;
+bottom: 8px;
+width: 100%;
+text-align: center;
 }
 
 /* Number text (1/3 etc) */
 .numbertext {
-  color: #f2f2f2;
-  font-size: 75%;
-  padding: 50% 75%;
-  position: absolute;
-  top: 0;
+color: #f2f2f2;
+font-size: 12px;
+padding: 8px 12px;
+position: absolute;
+top: 0;
 }
 
 /* The dots/bullets/indicators */
 .dot {
-  cursor: pointer;
-  height: 93.8%;
-  width: 93.8;
-  margin: 0 12.5%;
-  background-color: #bbb;
-  border-radius: 50%;
-  display: inline-block;
-  transition: background-color 0.6s ease;
+cursor: pointer;
+height: 15px;
+width: 15px;
+margin: 0 2px;
+background-color: #bbb;
+border-radius: 50%;
+display: inline-block;
+transition: background-color 0.6s ease;
 }
 
 .active, .dot:hover {
-  background-color: #717171;
+background-color: #717171;
 }
 
 /* Fading animation */

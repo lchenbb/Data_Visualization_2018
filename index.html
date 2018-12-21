@@ -363,6 +363,8 @@
         let typicals_rcp45_2020_25_allag = d3.json('./data/csv_quickflow/rcp45_2020_25pct_allag/typical_provs.json');
         let typicals_rcp45_2040_25 = d3.json('./data/csv_quickflow/rcp45_2040_25pct/typical_provs.json');
         let typicals_rcp45_2040_25_allag = d3.json('./data/csv_quickflow/rcp45_2040_25pct_allag/typical_provs.json');
+        let typicals_rcp85_2020_75 = d3.json('./data/csv_quickflow/rcp85_2020_75pct/typical_provs.json');
+        let typicals_rcp85_2040_75 = d3.json('./data/csv_quickflow/rcp85_2040_75pct/typical_provs.json');        
 
         // Get national baseflow data
         let national_data = d3.json('./data/national_data.json');
@@ -379,10 +381,11 @@
 
         Promise.all([map_promise, full_stat, national_data, typicals_qf, typicals_rcp45_2020_25,
                     typicals_rcp45_2020_25_allag, typicals_rcp45_2040_25,
-                    typicals_rcp45_2040_25_allag]).then((results) => {
+                    typicals_rcp45_2040_25_allag, typicals_rcp85_2020_75,
+                    typicals_rcp85_2040_75]).then((results) => {
 
             // Assign results to data
-            data = results.slice(1, 8);
+            data = results.slice(1, 10);
             console.log('input data', data);
             // Set promise finish to true
             promise_finish = true;

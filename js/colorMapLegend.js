@@ -73,8 +73,8 @@ function createBoxLegend(svg) {
 
 function createColorMapLegend(svg, value) {
   colorbar = svg.append('g')
-                      .attr('transform', 'translate(30, 40)')
-                      .attr('width', 20 + margin.right);
+                      .attr('transform', 'translate(0, 40)')
+                      .attr('width', 50);
 
   var w = 300, h = 50;
 

@@ -5,15 +5,19 @@ var boxLegend = undefined;
 function createD3LegendBox(svg, legend) {
   removeAllLegend();
 
-  svg.append('text')
-          .text('Legend')
-          .attr('fill', 'black')
-          .attr('font-size', 25)
-          .attr('transform', 'translate(10, 20)');
-
   if (legend === 0) {
+    svg.append('text')
+            .text('Legend Baseflow change values')
+            .attr('fill', 'black')
+            .attr('font-size', 15)
+            .attr('transform', 'translate(10, 16)');
     createColorMapLegend(svg);
   } else if (legend === 1) {
+    svg.append('text')
+            .text('Legend heatmap')
+            .attr('fill', 'black')
+            .attr('font-size', 15)
+            .attr('transform', 'translate(10, 16)');
     createBoxLegend(svg);
   }
 
@@ -53,17 +57,17 @@ function createBoxLegend(svg) {
 
     var linear = d3.scaleOrdinal()
     .domain(["Low", "Medium", "High"])
-    .range(["rgb(10, 50, 200)", "rgb(255, 255, 10)", "rgb(255, 0, 0)"]);
+    .range(["rgba(10, 50, 200)", "rgba(255, 255, 10)", "rgba(255, 0, 0)"]);
 
     boxLegend = svg.append("g")
       .attr("class", "legendOrdinal")
-      .attr("transform", "translate(30,40)");
+      .attr("transform", "translate(30,30)");
 
     var legendOrdinal = d3.legendColor()
-      .shapeWidth(60)
-      .shapeHeight(20)
+      .shapeWidth(50)
+      .shapeHeight(15)
       .cells(3)
-      .shapePadding(15)
+      .shapePadding(10)
       .orient('horizontal')
       .scale(linear);
 
@@ -73,6 +77,7 @@ function createBoxLegend(svg) {
 
 function createColorMapLegend(svg, value) {
   colorbar = svg.append('g')
+
                       .attr('transform', 'translate(0, 40)')
                       .attr('width', 50);
 
@@ -94,12 +99,12 @@ function createColorMapLegend(svg, value) {
 
   colorbar.append("rect")
     .attr("width", w)
-    .attr("height", h - 30)
+    .attr("height", h - 36)
     .style("fill", "url(#gradient)")
     .attr("transform", "translate(0,10)");
 
   var y = d3.scaleLinear()
-    .range([0, 300])
+    .range([0, 200])
     .domain([-100000, 100000]);
 
   var yAxis = d3.axisBottom()
@@ -108,7 +113,7 @@ function createColorMapLegend(svg, value) {
 
   colorbar.append("g")
     .attr("class", "y axis")
-    .attr("transform", "translate(0,30)")
+    .attr("transform", "translate(0,24)")
     .call(yAxis)
     .append("text")
     .attr("transform", "rotate(-90)")

@@ -12,8 +12,9 @@ function show_stats(type, data){
 	// Seperate data
 	let provinces_data = data[0];
 	console.log('provincial data', provinces_data);
-	let typicals = data[1];
-	let national_data = data[2];
+	let typicals = data.slice(2, data.length);
+	console.log(data.length);
+	let national_data = data[1];
 	console.log('typicals', typicals);
 	console.log(d3.select("input[name='myRadios']:checked").property('value'));
 	// Choose statistical elements division
@@ -84,7 +85,7 @@ function show_hist(type, data){
 	  tooltip: {
 	    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
 	    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-	      '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+	      '<td style="padding:0"><b>{point.y:.1f} points</b></td></tr>',
 	    footerFormat: '</table>',
 	    shared: true,
 	    useHTML: true
@@ -118,9 +119,13 @@ function show_boxplot(type, data){
 
 	let boxplot_div = stat_elements_div.append('div')
 										.attr('id', 'boxplot_div');
-										
+
+	// Get quick flow type
+	qf_type = $('#dropdownListTimeline li a.selected_qf').attr('value');
+	qf_index = $('#dropdownListTimeline li a.selected_qf').parent().index();
+
 	// Set up data used in this func
-	typicals = data;
+	typicals = data[qf_index];
 
 	// Convert data[prov] to array
 	let keys = Object.keys(typicals);
@@ -139,7 +144,7 @@ function show_boxplot(type, data){
 	    },
 
 	    title: {
-	        text: type + ' Quick Flow per Month '
+	        text: type + ' ' + qf_type + ' Quick Flow per Month '
 	    },
 
 	    legend: {

@@ -70,7 +70,7 @@ function show_hist(type, data){
 	  chart: {
 	    type: 'column',
 	    zoomType: 'x',
-	    height: (11 / 16 * 100) + '%'
+	    height: (12 / 16 * 100) + '%'
 	  },
 	  title: {
 	    text: type + ' baseflow distribution'
@@ -172,7 +172,7 @@ function show_boxplot(type, data){
 
 	    chart: {
 	        type: 'boxplot',
-	        height: (11 / 16 * 100) + '%'
+	        height: (12 / 16 * 100) + '%'
 	    },
 
 	    title: {
@@ -230,6 +230,30 @@ function show_boxplot(type, data){
 	if (type == 'Summary')
 		console.log(v_data);
 }
+
+
+function show_analysis(){
+
+	// Show analysis for each type of flow
+	let stat_elements_div = d3.select('#stat_elements_div');
+
+	// Remove old info
+	stat_elements_div.select('#Analysis').remove();
+
+	// Display new info
+	stat_elements_div.append('div')
+						.attr('id', 'Analysis');
+
+	let ana_element = document.getElementById('Analysis');
+
+	let type = d3.select("input[name='myRadios']:checked").property('value');
+
+	if (type == 0)
+		ana_element.innerHTML = BASEFLOW_SUMMARY_ANALYSIS;
+	else
+		ana_element.innerHTML = QUICKFLOW_SUMMARY_ANALYSIS;
+
+}
 // Global variables
 var MONTHS = ['Jan', 'Feb', 'Mat', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
@@ -237,9 +261,27 @@ var PROVINCES = ['Ayeyarwady', 'Bago', 'Chin', 'Kachin', 'Kayah', 'Kayin', 'Magw
        'Mandalay', 'Mon', 'Rakhine', 'Sagaing', 'Shan', 'Tanintharyi',
        'Yangon', 'National'];
 
-function test(){
-	console.log('load stats');
-}
+// Analysis content
+var BASEFLOW_ANALYSIS = 'Baseflow analysis:\n Baseflow is contributing to dry-season water availability and thus regarded as an important indicator of sufficiency of water supply.\
+  The national distribution of baseflow in Myanmar is ‘High among coastal area and low among inland area’ in general. One interesting point is that the middle provinces such as Magway, Mandalay and Bago have even lower baseflow value than the ones that are more "inland" such as Kachin. One possible explanation resides in the altitude and temperature difference. \
+  While provinces like Kachin have higher altitude and lower temperature, the above mentioned middle provinces are located in the center plains of Myanmar which have higher temperature and thus more evaporation.'
+
+var BASEFLOW_SUMMARY_ANALYSIS = `<p style="font-size:200%;">Baseflow analysis:</p>
+								<p style="font-size:130%">Baseflow is contributing to dry-season water availability\
+							 	and thus regarded as an important indicator of sufficiency of water supply.</p>
+							 	<p style="font-size:130%">The national distribution of baseflow in Myanmar is\
+							  	‘High among coastal area and low among inland area’ in general.</p> \
+							  	<p style="font-size:130%">One interesting point is that the middle provinces such as Magway, Mandalay and Bago\
+							  	have even lower baseflow value than the ones that are more "inland"\
+							    such as Kachin.</p>\
+							    <p style="font-size:130%">Select province to have detailed investigation.</p>`;
+
+var QUICKFLOW_SUMMARY_ANALYSIS = `<p style="font-size:200%;">Quickflow analysis</p>\
+									<p style="font-size:130%">Quickflow contributes most to wet-season water availability\
+									 and thus regarded as an important indicator of flood.</p>\
+									 <p style="font-size:130%">The general geographical distributions of quickflow in Myanmar\
+									  is higher in southwestern coastal area and lower in northeastern inland area.</p>\
+									  <p style="font-size:130%">Select province to have detailed investigation.</p>`
 whenDocumentLoaded(() => {
 
 	let name = d3.select('#radio2')

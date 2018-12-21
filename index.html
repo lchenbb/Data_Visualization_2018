@@ -272,7 +272,6 @@
         };
         title.addTo(map);
 
-
         showBlock = true;
         function toggleBlock(num) {
             console.log('Toggle the block')
@@ -384,7 +383,7 @@
 
             // Assign results to data
             data = results.slice(1, 8);
-
+            console.log(data);
             // Set promise finish to true
             promise_finish = true;
 
@@ -460,6 +459,7 @@
 
             // Add event listener to qf type change
             $('#dropdownListTimeline li a').click(function(){
+                console.log('QF subtype');
                 $('#dropdownListTimeline li a.selected_qf').removeClass('selected_qf')
                 $(this).addClass('selected_qf');
                 show_stats('National', data);
@@ -818,7 +818,6 @@ function showSlidesauto() {
   setTimeout(showSlides, 5000); // Change image every 2 seconds
 }
 </script>
-
 
 
 

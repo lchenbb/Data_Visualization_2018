@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+            <title>SWY</title>
+            <!-- bar chart -->
+            <link rel="stylesheet" href="css/autocomplete.css" />
+            <link rel="stylesheet" href="css/timeline.css" />
+
+            <!-- Leaflet -->
+            <link rel="stylesheet" href="css/leaflet.css" />
+            <link rel="stylesheet" href="css/leaflet-sidebar.css" />
+            <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+            <link href="css/radio-input-group.css" rel="stylesheet">
+            <link href="css/button.css" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+
+            <link href="css/bootstrap-tabs-x-bs4.css" media="all" rel="stylesheet" type="text/css" />
+
+
+            <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+            <link rel="stylesheet" href="/resources/demos/style.css">
+            <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+            <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+            <script src="lib/leaflet.js"></script>
+            <script src="lib/leaflet.groupedlayercontrol.min.js"></script>
+            <script src="js/colorMapLegend.js"></script>
+            <script src="js/colorDefs.js"></script>
+            <script src="lib/leaflet-heat.js"></script>
+            <script src="lib/jquery-3.3.1.min.js"></script>
+            <script src="js/canton_center.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" type="text/javascript"></script>
+            <script src="lib/bootstrap-tabs-x.min.js" type="text/javascript"></script>
+        <style>
+        body, table, tr, td, th, div, h1, h2, input { font-family: "Calibri", "Trebuchet MS", "Ubuntu", Serif; font-size: 11pt; }
+        body, html {height:"100%"}
+        #map { position:absolute; top:0; bottom:0; width:100%;} /* full size */
+        .ctl {
+            padding: 2px 10px 2px 10px;
+            background: white;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            text-align: right;
+        }
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+        }
+        .src {
+            font-size: 10pt;
+        }
+
+        .split1 {
+            float:left !important;
+            height: 100% !important;
+            min-height: 100% !important;
+            width: 25% !important;
+            border: 1px solid black;
+            overflow: auto;
+        }
+
+        .split2 {
+            float:left !important;
+            height: 100% !important;
+            min-height: 100% !important;
+            width: 41.66% !important;
+            border: 1px solid black;
+        }
+
+        .split3 {
+            float:left !important;
+            height: 100% !important;
+            width: 33.33% !important;
+            border: 1px solid black;
+        }
+
+        /* Control the left side */
+        .left {
+            left: 0;
+            background-color: #111;
+        }
+
+        /* Control the right side */
+        .right {
+            right: 0;
+            background-color: red;
+        }
+
+        </style>
+
+        </head>
+        <body>
+          <script src='lib/topojson.min.js'></script>
+          <script src="lib/d3.min.js"></script>
+          <script src="lib/leaflet-sidebar.js"></script>
+
+          <!-- Divide the screen into three parts-->
+          <div id="ctl_panel_div" class="split1">
+            <form class="form">
+              <p style="font-size:20px">Control panel</p>
+              <button id="button-intro" style="position:relative;bottom:20px">Guideline</button>
+              <p style="font-size:18px;position:relative;bottom:20px">Choose data</p>
+              <div class="inputGroup" style="position:relative;bottom:40px">
+                <input id="radio1" name="myRadios" type="radio" value="0" onclick="toggleBlock(0)"/>
+                <label for="radio1">Baseflow</label>
+              </div>
+              <div class="inputGroup" style="position:relative;bottom:40px">
+                <input id="radio2" name="myRadios" type="radio" value="1" onclick="toggleBlock(1)"/>
+                <label for="radio2">Quickflow</label>
+              </div>
+              <div class="inputGroup" style="position:relative;bottom:40px">
+                <input id="radio3" name="myRadios" type="radio" value="null"/>
+                <label for="radio3">No data</label>
+              </div>
+            </form>
+
+            <form class="form" style="position:relative;bottom:50px">
+              <p style="font-size:18px">Canton search</p>
+              <div class="dropdown" id="dropdownCantons" style="position:absolute">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownSearch" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                  Choose canton
+                  <span class="caret"></span>
+                </button>
+                <ul style="height:auto;max-height:200px;overflow-x:hidden;" class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="dropdownList">
+                </ul>
+              </div>
+
+              <div class="autocomplete" style="margin-left:50px;position:absolute;left:130px">
+                  <input id="myInput" type="text" name="myCountry" placeholder="State" >
+              </div>
+            <div>
+                <button type="button" class="btn btn-outline-primary" onclick="getInput()" style="position:relative;left:250px;top:60px">Search</button>
+                <button type="button" class="btn btn-outline-primary" onclick="resetInput()" style="position:relative;right:60px;top:60px">Reset</button>
+                <button type="button" class="btn btn-outline-primary" onclick="showSummary()" style="position:relative;right:30px;top:60px">Summary</button>
+            </div>
+
+            </form>
+
+            <form class="form" style="position:relative;bottom:0%" id="timelineElements">
+              <div>
+                <p style="font-size:150%">Timeline</p>
+              </div>
+
+              <div class="dropdown" id="dropdownTimeline">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownSearchTimeline" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                  Choose dataset
+                  <span class="caret"></span>
+                </button>
+                <ul style="height:auto;max-height:200px;overflow-x:hidden;" class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="dropdownListTimeline">
+                  <li><a class="dropdown-item" href="#" id="timeline-item1" name="timelineItems" value="historical"> Historical </a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item2" name="timelineItems" value="rcp45_2020_25"> RCP:45 2020 25%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item3" name="timelineItems" value="rcp45_2020_25_allag"> RCP:45 2020 25% allag</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item4" name="timelineItems" value="rcp45_2040_25"> RCP:45 2040 25%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item5" name="timelineItems" value="rcp45_2040_25_allag"> RCP:45 2040 25% allag</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item6" name="timelineItems" value="rcp85_2020_75"> RCP:85 2020 75%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item7" name="timelineItems" value="rcp85_2040_75"> RCP:85 2040 75%</a></li>
+                </ul>
+              </div>
+
+
+              <div  id="vis"></div>
+              <div style="position:relative;bottom:30px;left:10px"><button id="play-button" display:inline-block>Play</button>
+              <img src="http://www.endlessicons.com/wp-content/uploads/2012/11/reset-icon-614x460.png" id="reset" onclick = "Reset()" /></div>
+
+            </form>
+          </div>
+          <div id="stat_div" class="split2" style="background-color:#A9A9A9">
+            <p style="font-size:20px">Statistics</p>
+            <div id='stat_elements_div' style='max-height:100%; overflow: auto'></div>>
+          </div>
+          <div id="map" class="sidebar-map split3" style="right:0;z-index:1;"></div>
+
+        <script src='data/mapList.js'></script>
+        <script src='js/d3v4.js'></script>
+        <script src='js/autocomplete.js'></script>
+        <script src='js/timeline.js'></script>
+        <script src='js/fengyu.js'></script>
+        <script src='js/search-cantons.js'></script>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js'></script>
+
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/series-label.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script src="https://code.highcharts.com/modules/export-data.js"></script>
+        <script src="https://code.highcharts.com/modules/histogram-bellcurve.js"></script>
+        <script src="https://code.highcharts.com/highcharts-more.js"></script>
+        <script src='js/stats.js'></script>
+
+        <script>
+        hideTimelineElements();
+
+        // Adjust size of elements
+        let WINDOW_HEIGHT = $('window').height();
+
+        $('#stat_div').css({
+            'min-height': WINDOW_HEIGHT + 'px',
+            'max-height': WINDOW_HEIGHT + 'px'
+        });
+        // Load heatmap data
+        $.getScript("data/qf_historical_12months/qf_historical_12months.js", function( data, textStatus, jqxhr ) {
+          console.log("Load was performed.");
+        });
+
+        // Add cantons to dropdown list
+        addElementsToList();
+
+        // Remove the default behavior of a button
+        $("#play-button").click( function(event) {
+           event.preventDefault();
+           console.log('clean the default');
+        });
+
+        setDropdownTimeline('Historical');
+        setListenersDropdownTimeline();
+
+        /* **** Leaflet **** */
+
+        // Base layers
+        //  .. OpenStreetMap
+        d3.geoPath();
+        var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'});
+
+        //  .. CartoDB Positron
+        var cartodb = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'});
+
+        //  .. OSM Toner
+        var toner = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'});
+
+        //  .. White background
+        var white = L.tileLayer("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAH0lEQVQYGe3BAQ0AAADCIPunfg43YAAAAAAAAAAA5wIhAAAB9aK9BAAAAABJRU5ErkJggg==");
+
+        // Overlay layers (TMS)
+        // Add here the new layouts
+        var lyr0 = L.tileLayer('data/B_historical_change/{z}/{x}/{y}.png', {tms: true, opacity: 0.8, attribution: ""});
+        var lyr1 = L.tileLayer('data/B_flow_retention/{z}/{x}/{y}.png', {tms: true, opacity: 0.8, attribution: ""});
+
+        // Map
+        var map = L.map('map', {
+            center: [19.2436590371, 96.8861699425],
+            zoom: 6,
+            minZoom: 6,
+            maxZoom: 9,
+            layers: [osm]
+        });
+
+        let bounds_map = map.getBounds();
+        console.log(bounds_map)
+
+        bounds_map._northEast.lat += 20;
+        bounds_map._northEast.lin += 20;
+        bounds_map._southWest.lat -= 20;
+        bounds_map._southWest.lin -= 20;
+        map.setMaxBounds(bounds_map);
+
+        var basemaps = {"OpenStreetMap": osm, "CartoDB Positron": cartodb, "Stamen Toner": toner, "Without background": white};
+
+        map.on('baselayerchange', function(e) {
+          currentLayer.bringToFront();
+        });
+
+        // Title, 'ctl title'
+        var title = L.control({position: 'bottomleft'});
+        title.onAdd = function(map) {
+	        this._div = L.DomUtil.create('div');
+            let startPoint = {'lat': 19.2436590371, 'lin': 96.8861699425}
+	        this.update(startPoint['lat'], startPoint['lin'], nearestPoint(startPoint), 'Mandalay');
+	        return this._div;
+        };
+        title.update = function(lat, log, val, canton) {
+            console.log(lat);
+	        this._div.innerHTML = `<div class="leaflet-control-layers leaflet-control-layers-expanded" style="width:145px;height:90px;background:gray">
+                <span>canton: ` + canton.toString() + `</span>
+                <span>Longtitude: ` + log.toString().substr(0,5) + `</span>
+                <span>Latitude:   ` + lat.toString().substr(0,5) + `<br /></span>
+                <span>Value: ` + val.toString().substr(0,5) + ` </span>
+             </div>`;
+        };
+        title.addTo(map);
+
+
+        var legend = L.control({position: 'bottomleft'});
+        legend.onAdd = function(map) {
+            this._div = L.DomUtil.create('div');
+          this.update()
+            return this._div;
+        };
+        legend.update = function() {
+            this._div.innerHTML = '<div class="leaflet-control-layers leaflet-control-layers-expanded" id="legendBox" style="width:355px;height:100px;background:gray"></div>';
+        };
+        legend.addTo(map);
+
+        var legendSVG = d3.select('#legendBox')
+                                .append('svg')
+                                .attr('transform', 'translate(0,' + 0 + ')')
+                                .attr('width', 355)
+                                .attr('height', 100);
+        showBlock = true;
+        function toggleBlock(num) {
+            console.log('Toggle the block')
+            if(showBlock === true && num == 1){
+            /* use jquery to select your DOM elements that has the class 'legend' */
+               $('.leaflet-control-layers').hide();
+               showBlock= false; 
+            }
+            else if (showBlock === false && num == 0){
+               $('.leaflet-control-layers').show();
+               showBlock = true; 
+            }
+        }
+
+
+         // Use the custom grouped layer control, not "L.control.layers"
+
+        // Remove the stupid leaflet copyright from bottom right
+
+        let stupid_element = document.querySelector('.leaflet-control-attribution.leaflet-control');
+        stupid_element.parentNode.removeChild(stupid_element);
+
+        // make the side bar close
+        //sidebar.open('home');
+
+        // Obtain the data for the statistics_div
+        
+        let stat_elements_div = d3.select('#stat_elements_div');
+        
+        // Initialization of statistics plotting
+        const margin = {
+            top: 30,
+            right: 30,
+            bottom: 30,
+            left: 50
+        };
+        const height_stat = 300;
+        const height_brush = 30;
+        const height_tick = 18;
+        const panel_guide_height = 500;
+        const height_total = height_stat + height_brush + height_tick + 100;
+        const width = stat_elements_div.node().getBoundingClientRect().width - margin.right - margin.left;
+        const svg_y =  - height_total - margin.top - margin.bottom - panel_guide_height;
+        const color = 'steelblue';
+
+        // Build statistics svg
+        stat_svg = d3.select('#stat_elements_div')
+                        .append('svg')
+                        .attr('transform', 'translate(0,' + 0 + ')')
+                        .attr('width', width + margin.left + margin.right)
+                        .attr('height', height_total + margin.top + margin.bottom);
+
+        // Build a background rect
+        back_rect = stat_svg.append('rect')
+                                .attr('width', width + margin.left + margin.right)
+                                .attr('height', height_total + margin.top + margin.bottom)
+                                .attr('fill', 'white')
+                                .attr('opacity', 0.6);
+
+
+
+        createD3LegendBox(legendSVG, 0);
+
+        // Add canton border to the map
+        let svg = d3.select(map.getPanes().overlayPane).append('svg').attr('id', 'svg');
+        let g = svg.append('g').attr('class', 'leaflet-zoom-hide');
+
+        // Map promise
+        const map_promise = d3.json('map/MYANMAR_GEOJSON.json').then(x => x);
+
+        // Define project point function
+        function project_point(x, y){
+            let point = map.latLngToLayerPoint(new L.LatLng(y, x));
+            this.stream.point(point.x, point.y);
+        }
+
+        let canton = null;
+
+        let stat = d3.json("./data/stat.json").then(d => d);
+
+        // load statistics json
+        const full_stat = d3.json('./data/prov_data.json').then(d => d);
+
+        // Get typicals data
+        let typicals_qf = d3.json('./data/monthly_qf/typical_provs.json');
+        let typicals_rcp45_2020_25 = d3.json('./data/csv_quickflow/rcp45_2020_25pct/typical_provs.json');
+        let typicals_rcp45_2020_25_allag = d3.json('./data/csv_quickflow/rcp45_2020_25pct_allag/typical_provs.json');
+        let typicals_rcp45_2040_25 = d3.json('./data/csv_quickflow/rcp45_2040_25pct/typical_provs.json');
+        let typicals_rcp45_2040_25_allag = d3.json('./data/csv_quickflow/rcp45_2040_25pct_allag/typical_provs.json');
+        let typicals_rcp85_2020_75 = d3.json('./data/csv_quickflow/rcp85_2020_75pct/typical_provs.json');
+        let typicals_rcp85_2040_75 = d3.json('./data/csv_quickflow/rcp85_2040_75pct/typical_provs.json');        
+
+        // Get summary data
+        let summary_bf_history = d3.json('./data/B_historical_change/typical_summary.json')
+        let summary_qf = d3.json('./data/monthly_qf/typical_summary.json');
+        let summary_rcp45_2020_25 = d3.json('./data/csv_quickflow/rcp45_2020_25pct/typical_summary.json');
+        let summary_rcp45_2020_25_allag = d3.json('./data/csv_quickflow/rcp45_2020_25pct_allag/typical_summary.json');
+        let summary_rcp45_2040_25 = d3.json('./data/csv_quickflow/rcp45_2040_25pct/typical_summary.json');
+        let summary_rcp45_2040_25_allag = d3.json('./data/csv_quickflow/rcp45_2040_25pct_allag/typical_summary.json');
+        let summary_rcp85_2020_75 = d3.json('./data/csv_quickflow/rcp85_2020_75pct/typical_summary.json');
+        let summary_rcp85_2040_75 = d3.json('./data/csv_quickflow/rcp85_2040_75pct/typical_summary.json');  
+        // Get national baseflow data
+        let national_data = d3.json('./data/national_data.json');
+
+        let transform = d3.geoTransform({point: project_point});
+        let gen_path = d3.geoPath().projection(transform);
+
+
+        // Define promise finish variable
+        var promise_finish = false;
+
+        // Define global data container
+        var data;
+
+        Promise.all([map_promise, full_stat, national_data, typicals_qf, typicals_rcp45_2020_25,
+                    typicals_rcp45_2020_25_allag, typicals_rcp45_2040_25,
+                    typicals_rcp45_2040_25_allag, typicals_rcp85_2020_75,
+                    typicals_rcp85_2040_75, summary_bf_history, summary_qf, summary_rcp45_2020_25,
+                    summary_rcp45_2020_25_allag, summary_rcp45_2040_25,
+                    summary_rcp45_2040_25_allag, summary_rcp85_2020_75,
+                    summary_rcp85_2040_75]).then((results) => {
+
+            // Assign results to data
+            data = results.slice(1, 18);
+            console.log('input data', data);
+            // Set promise finish to true
+            promise_finish = true;
+
+            let feature = g.selectAll('path')
+                            .data(results[0].features)
+                            .enter()
+                                .append('path');
+
+            feature.attr('d', gen_path)
+                    .attr('class', 'province')
+                    .attr('fill-opacity', 0)
+                    .attr('position', 'relative')
+                    .attr('stroke', 'green')
+                    .attr('stroke-width', 2)
+                    .attr('stroke-opacity', 0.5)
+                    .on('mousedown.log', (d) => {
+
+                        // Set the canton
+                        canton = d.properties['NAME_1'];
+                        console.log(d.properties['NAME_1']);
+
+                        // Draw the statistics of canton
+                        show_stats(canton, data);
+                        show_analysis();
+                    });
+
+            feature.on('mouseover', function(d, i){
+                d3.selectAll('.province')
+                    .style('fill-opacity', 0);
+                d3.select(this).style('fill-opacity', 0.1);
+            });
+
+            feature.on('mouseout', function(d, i){
+                d3.selectAll('.province')
+                    .style('fill-opacity', 0);
+                d3.select(this).style('fill-opacity', 0.0);
+            });
+
+            let bounds = gen_path.bounds(results[0]);
+            let top_left = bounds[0];
+            let bottom_right = bounds[1];
+
+            svg.attr('width', bottom_right[0] - top_left[0])
+                .attr('height', bottom_right[1] - top_left[1])
+                .style('left', top_left[0] + 'px')
+                .style('top', top_left[1] + 'px');
+
+            g.attr('transform', 'translate(' + -top_left[0] + ',' + -top_left[1] + ')');
+
+
+            map.on('moveend', () => {
+                bounds = gen_path.bounds(results[0]);
+                top_left = bounds[0];
+                bottom_right = bounds[1];
+                svg.attr('width', bottom_right[0] - top_left[0])
+                    .attr('height', bottom_right[1] - top_left[1])
+                    .style('left', top_left[0] + 'px')
+                    .style('top', top_left[1] + 'px');
+
+                g.attr('transform', 'translate(' + -top_left[0] + ',' + -top_left[1] + ')');
+                feature.attr('d', gen_path);
+            });
+
+            // Show national stats
+            show_stats('National', data);
+
+            // Add event listener to flow type change
+            d3.selectAll("input[name='myRadios']")
+                .on('change', function(){
+                    $('#dropdownListTimeline li a').addClass('selected_qf');
+                    show_stats('National', data);
+                    show_analysis();
+                });
+
+
+            // Add event listener to qf type change
+            $('#dropdownListTimeline li a').click(function(){
+                console.log('QF subtype');
+                $('#dropdownListTimeline li a.selected_qf').removeClass('selected_qf')
+                $(this).addClass('selected_qf');
+                show_stats('National', data);
+                show_analysis();
+            })
+
+            // Show analysis
+            show_analysis();
+        });
+
+
+	      var popup = L.popup();
+        // Response to the mouse click
+        map.on('click', function(e) {
+
+            var data = {'lat': e.latlng.lat, 'lin': e.latlng.lng};
+
+            let nearestP = nearestPoint(data);
+
+            // do something with response
+            if (canton != null){
+                // popup.setLatLng(e.latlng)
+                // .setContent("Position " + e.latlng.toString() + '\nCanton is ' + canton.toString() + '\nValue is ' + nearestP.toString())
+                // .openOn(map)
+                console.log(canton)
+                title.update(data['lat'], data['lin'], nearestP, canton);
+                //title.addTo(map);
+
+
+                canton = null
+            }
+            // else {
+            //     popup.setLatLng(e.latlng)
+            //     .setContent("Position " + e.latlng.toString() + '\nValue is ' + nearestP.toString())
+            //     .openOn(map)
+            // }
+
+        });
+
+        // Declare radiobuttons listeners
+        let radioButtons = document.getElementsByName("myRadios");
+        radioButtons[0].checked = true;
+        let prev = {
+          value: "0"
+        };
+        map.addLayer(lyr0);
+        var baseflowLayer = eval("lyr0");
+
+
+        for(var i = 0; i < radioButtons.length; i++) {
+          radioButtons[i].addEventListener('change', function() {
+            if(this.value !== "null") {
+              legend.addTo(map);
+              legendSVG = d3.select('#legendBox')
+                                      .append('svg')
+                                      .attr('transform', 'translate(0,' + 0 + ')')
+                                      .attr('width', 450)
+                                      .attr('height', 100);
+              prev = this;
+              getCorrectLayerAndAddToMap(this.value);
+
+              createD3LegendBox(legendSVG, parseInt(this.value, 10));
+            }
+
+            if(this.value === "null") {
+              hideTimelineElements();
+              if(heatmapLayer !== undefined) {
+                map.removeLayer(heatmapLayer);
+              }
+
+              if(baseflowLayer !== undefined) {
+                map.removeLayer(baseflowLayer);
+              }
+              legend.remove();
+              removeAllLegend();
+            }
+          });
+        }
+
+        function getCorrectLayerAndAddToMap(index) {
+          let layer;
+
+          switch(parseInt(index, 10)) {
+            // Baseflow
+            case 0:
+              hideTimelineElements();
+              if(heatmapLayer !== undefined) {
+                map.removeLayer(heatmapLayer);
+              }
+              map.addLayer(baseflowLayer);
+              baseflowLayer.bringToFront();
+              break;
+
+            // Quickflow heatmaps
+            case 1 :
+              showTimelineElements();
+              map.removeLayer(baseflowLayer);
+              showHeatMap(currentSliderPosition);
+              map.addLayer(heatmapLayer);
+              break;
+
+            // Other
+            default:
+              break;
+          }
+
+        }
+
+        // Fit to overlay bounds (SW and NE points with (lat, lon))
+        // map.fitBounds([[9.92035336588, 101.633885799], [28.5669647084, 92.1384540862]]);
+        var CantonMarker;
+        function getInput(){
+            let canton_search = document.getElementById("myInput").value
+            if (cantons_lower.includes(canton_search)){
+                console.log(canton_search);
+                map.flyTo([cantonCenter[canton_search]["lat"], cantonCenter[canton_search]["lin"]], cantonCenter[canton_search]["zoom"]);
+                if (CantonMarker){
+                    map.removeLayer(CantonMarker);
+                }
+                CantonMarker = new L.marker([cantonCenter[canton_search]["lat"], cantonCenter[canton_search]["lin"]]);
+                console.log('new cantonmarker');
+                CantonMarker.addTo(map);
+
+                // Show stats for selected province
+                if (!promise_finish)
+                    alert('Loading data :(');
+                else{
+                    show_stats(canton_search, data);
+                    show_analysis();
+                }
+            }
+            else if (!canton_search) {
+                alert("Please input the canton name")
+            }
+            else {
+                alert("Not exist!");
+            }
+        }
+
+        function resetInput(){
+            document.getElementById("myInput").value = "";
+
+            map.flyTo([19.2436590371, 96.8861699425], 6);
+            if (CantonMarker) {
+                map.removeLayer(CantonMarker);
+            }
+            $(".dropdown").find('#dropdownSearch').html('Choose canton' + ' <span class="caret"></span>');
+            $(".dropdown").find('#dropdownSearch').val($(this).data('value'));
+
+            // Show national stats
+            show_stats('National', data);
+            show_analysis();
+        }
+
+        function showSummary(){
+            document.getElementById('myInput').value = '';
+
+            map.flyTo([19.2436590371, 96.8861699425], 6);
+            if (CantonMarker) {
+                map.removeLayer(CantonMarker);
+            }
+            $(".dropdown").find('#dropdownSearch').html('Choose canton' + ' <span class="caret"></span>');
+            $(".dropdown").find('#dropdownSearch').val($(this).data('value'));
+
+            // Show national stats
+            show_stats('Summary', data);
+            show_analysis();
+        }
+        </script>
+
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+  <script src="js/jquery-1.9.1.js"></script>
+  <script src="js/jquery-ui.js"></script>
+  <!--<script src="//code.jquery.com/jquery-latest.min.js"></script>-->
+<!--<script src="//unslider.com/unslider.js"></script>-->
+
+<style>
+    .banner { position: relative; overflow: auto; }
+    .banner li { list-style: none; }
+    .banner ul li { float: left; }
+</style>
+<style>
+* {box-sizing: border-box}
+body {font-family: Verdana, sans-serif; margin:0; height:100%;}
+html {height: 100%;}
+.mySlides {display: none}
+img {vertical-align: middle;}
+
+/* Slideshow container */
+.slideshow-container {
+  max-width: 1000px;
+  position: relative;
+  margin: auto;
+}
+.prev, .next {
+cursor: pointer;
+position: absolute;
+top: 50%;
+width: auto;
+padding: 16px;
+margin-top: -22px;
+color: white;
+font-weight: bold;
+font-size: 18px;
+transition: 0.6s ease;
+border-radius: 0 3px 3px 0;
+user-select: none;
+}
+
+/* Position the "next button" to the right */
+.next {
+right: 0;
+border-radius: 3px 0 0 3px;
+}
+
+/* On hover, add a black background color with a little bit see-through */
+.prev:hover, .next:hover {
+background-color: rgba(0,0,0,0.8);
+}
+
+/* Caption text */
+.text {
+color: #f2f2f2;
+font-size: 15px;
+padding: 8px 12px;
+position: absolute;
+bottom: 8px;
+width: 100%;
+text-align: center;
+}
+
+/* Number text (1/3 etc) */
+.numbertext {
+color: #f2f2f2;
+font-size: 12px;
+padding: 8px 12px;
+position: absolute;
+top: 0;
+}
+
+/* The dots/bullets/indicators */
+.dot {
+cursor: pointer;
+height: 15px;
+width: 15px;
+margin: 0 2px;
+background-color: #bbb;
+border-radius: 50%;
+display: inline-block;
+transition: background-color 0.6s ease;
+}
+
+.active, .dot:hover {
+background-color: #717171;
+}
+
+/* Fading animation */
+.fade {
+  -webkit-animation-name: fade;
+  -webkit-animation-duration: 1.5s;
+  animation-name: fade;
+  animation-duration: 1.5s;
+}
+
+@-webkit-keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
+
+@keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
+
+/* On smaller screens, decrease text size */
+@media only screen and (max-width: 300px) {
+  .prev, .next,.text {font-size: 11px}
+}
+</style>
+
+<div id="dialog" title="Basic Introduction" style="z-index:10">
+  <!--<img src="intro.png" height="500" width="750" alt="Placeholder Image" />-->
+  <div class="banner">
+    <div class="slideshow-container">
+
+<div class="mySlides">
+  <div class="numbertext">1 / 3</div>
+  <img src="images/intro3.png" style="width:100%">
+  <div class="text">Caption Text</div>
+</div>
+
+<div class="mySlides">
+  <div class="numbertext">2 / 3</div>
+  <img src="images/intro2.png" style="width:100%">
+  <div class="text">Caption Two</div>
+</div>
+
+<div class="mySlides">
+  <div class="numbertext">3 / 3</div>
+  <img src="images/intro4.png" style="width:100%">
+  <div class="text">Caption Three</div>
+</div>
+
+<a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+<a class="next" onclick="plusSlides(1)">&#10095;</a>
+
+</div>
+<br>
+
+<div style="text-align:center">
+  <span class="dot" onclick="currentSlide(1)"></span>
+  <span class="dot" onclick="currentSlide(2)"></span>
+  <span class="dot" onclick="currentSlide(3)"></span>
+</div>
+</div>
+
+</div>
+  <script>
+  $(function() {
+    //$( "#dialog" ).dialog();
+     $("#dialog").dialog({width: 790,height:600});
+     //$('.banner').unslider();
+  });
+  </script>
+  <script>
+  $("#button-intro").click(function(event){
+      event.preventDefault();
+      $("#dialog").dialog({width: 790,height:600});
+  })
+  </script>
+
+
+  <script>
+    var slideIndex = 1;
+showSlides(slideIndex);
+
+// Next/previous controls
+function plusSlides(n) {
+  showSlides(slideIndex += n);
+}
+
+// Thumbnail image controls
+function currentSlide(n) {
+  showSlides(slideIndex = n);
+}
+
+function showSlides(n) {
+  var i;
+  var slides = document.getElementsByClassName("mySlides");
+  var dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {slideIndex = 1}
+  if (n < 1) {slideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none";
+  }
+  for (i = 0; i < dots.length; i++) {
+      dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex-1].style.display = "block";
+  dots[slideIndex-1].className += " active";
+}
+
+  </script>
+  <script>
+var slideIndex = 0;
+showSlidesauto();
+
+function showSlidesauto() {
+  var i;
+  var slides = document.getElementsByClassName("mySlides");
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";
+  }
+  slideIndex++;
+  if (slideIndex > slides.length) {slideIndex = 1}
+  slides[slideIndex-1].style.display = "block";
+  setTimeout(showSlides, 5000); // Change image every 2 seconds
+}
+</script>
+
+
+
+</body>
+</html>

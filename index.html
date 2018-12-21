@@ -282,6 +282,23 @@
         };
         title.addTo(map);
 
+
+        var legend = L.control({position: 'bottomleft'});
+        legend.onAdd = function(map) {
+            this._div = L.DomUtil.create('div');
+          this.update()
+            return this._div;
+        };
+        legend.update = function() {
+            this._div.innerHTML = '<div class="leaflet-control-layers leaflet-control-layers-expanded" id="legendBox" style="width:355px;height:100px;background:gray"></div>';
+        };
+        legend.addTo(map);
+
+        var legendSVG = d3.select('#legendBox')
+                                .append('svg')
+                                .attr('transform', 'translate(0,' + 0 + ')')
+                                .attr('width', 355)
+                                .attr('height', 100);
         showBlock = true;
         function toggleBlock(num) {
             console.log('Toggle the block')
@@ -298,7 +315,6 @@
 
 
          // Use the custom grouped layer control, not "L.control.layers"
-        L.control.layers(basemaps, null).addTo(map);
 
         // Remove the stupid leaflet copyright from bottom right
 
@@ -343,8 +359,8 @@
                                 .attr('opacity', 0.6);
 
 
-        createD3LegendBox(stat_svg, 0);
 
+        createD3LegendBox(legendSVG, 0);
 
         // Add canton border to the map
         let svg = d3.select(map.getPanes().overlayPane).append('svg').attr('id', 'svg');
@@ -534,17 +550,20 @@
         map.addLayer(lyr0);
         var baseflowLayer = eval("lyr0");
 
+
         for(var i = 0; i < radioButtons.length; i++) {
           radioButtons[i].addEventListener('change', function() {
             if(this.value !== "null") {
+              legend.addTo(map);
+              legendSVG = d3.select('#legendBox')
+                                      .append('svg')
+                                      .attr('transform', 'translate(0,' + 0 + ')')
+                                      .attr('width', 450)
+                                      .attr('height', 100);
               prev = this;
               getCorrectLayerAndAddToMap(this.value);
 
-              if(this.value === 0) {
-                // Hide timeline
-              }
-
-              createD3LegendBox(stat_svg, parseInt(this.value, 10));
+              createD3LegendBox(legendSVG, parseInt(this.value, 10));
             }
 
             if(this.value === "null") {
@@ -556,6 +575,7 @@
               if(baseflowLayer !== undefined) {
                 map.removeLayer(baseflowLayer);
               }
+              legend.remove();
               removeAllLegend();
             }
           });
@@ -624,7 +644,7 @@
         function resetInput(){
             document.getElementById("myInput").value = "";
 
-            map.flyTo([19.2436590371, 96.8861699425], 5);
+            map.flyTo([19.2436590371, 96.8861699425], 6);
             if (CantonMarker) {
                 map.removeLayer(CantonMarker);
             }
@@ -639,7 +659,7 @@
         function showSummary(){
             document.getElementById('myInput').value = '';
 
-            map.flyTo([19.2436590371, 96.8861699425], 5);
+            map.flyTo([19.2436590371, 96.8861699425], 6);
             if (CantonMarker) {
                 map.removeLayer(CantonMarker);
             }

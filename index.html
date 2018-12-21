@@ -149,13 +149,13 @@
                   <span class="caret"></span>
                 </button>
                 <ul style="height:auto;max-height:200px;overflow-x:hidden;" class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="dropdownListTimeline">
-                  <li><a class="dropdown-item" href="#" id="timeline-item1" name="timelineItems"> Historical </a></li>
-                  <li><a class="dropdown-item" href="#" id="timeline-item2" name="timelineItems"> RCP:45 2020 25%</a></li>
-                  <li><a class="dropdown-item" href="#" id="timeline-item3" name="timelineItems"> RCP:45 2020 25% allag</a></li>
-                  <li><a class="dropdown-item" href="#" id="timeline-item4" name="timelineItems"> RCP:45 2040 25%</a></li>
-                  <li><a class="dropdown-item" href="#" id="timeline-item5" name="timelineItems"> RCP:45 2040 25% allag</a></li>
-                  <li><a class="dropdown-item" href="#" id="timeline-item6" name="timelineItems"> RCP:85 2020 75%</a></li>
-                  <li><a class="dropdown-item" href="#" id="timeline-item7" name="timelineItems"> RCP:85 2040 75%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item1" name="timelineItems" value="historical"> Historical </a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item2" name="timelineItems" value="rcp45_2020_25"> RCP:45 2020 25%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item3" name="timelineItems" value="rcp45_2020_25_allag"> RCP:45 2020 25% allag</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item4" name="timelineItems" value="rcp45_2040_25"> RCP:45 2040 25%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item5" name="timelineItems" value="rcp45_2040_25_allag"> RCP:45 2040 25% allag</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item6" name="timelineItems" value="rcp85_2020_75"> RCP:85 2020 75%</a></li>
+                  <li><a class="dropdown-item" href="#" id="timeline-item7" name="timelineItems" value="rcp85_2040_75"> RCP:85 2040 75%</a></li>
                 </ul>
               </div>
 
@@ -345,7 +345,11 @@
         const full_stat = d3.json('./data/prov_data.json').then(d => d);
 
         // Get typicals data
-        let typicals = d3.json('./data/monthly_qf/typical_provs.json');
+        let typicals_qf = d3.json('./data/monthly_qf/typical_provs.json');
+        let typicals_rcp45_2020_25 = d3.json('./data/csv_quickflow/rcp45_2020_25pct/typical_provs.json');
+        let typicals_rcp45_2020_25_allag = d3.json('./data/csv_quickflow/rcp45_2020_25pct_allag/typical_provs.json');
+        let typicals_rcp45_2040_25 = d3.json('./data/csv_quickflow/rcp45_2040_25pct/typical_provs.json');
+        let typicals_rcp45_2040_25_allag = d3.json('./data/csv_quickflow/rcp45_2040_25pct_allag/typical_provs.json');
 
         // Get national baseflow data
         let national_data = d3.json('./data/national_data.json');
@@ -360,10 +364,12 @@
         // Define global data container
         var data;
 
-        Promise.all([map_promise, full_stat, typicals, national_data]).then((results) => {
+        Promise.all([map_promise, full_stat, national_data, typicals_qf, typicals_rcp45_2020_25,
+                    typicals_rcp45_2020_25_allag, typicals_rcp45_2040_25,
+                    typicals_rcp45_2040_25_allag]).then((results) => {
 
             // Assign results to data
-            data = results.slice(1, 4);
+            data = results.slice(1, 8);
 
             // Set promise finish to true
             promise_finish = true;
@@ -433,8 +439,17 @@
             // Add event listener to flow type change
             d3.selectAll("input[name='myRadios']")
                 .on('change', function(){
+                    $('#dropdownListTimeline li a').addClass('selected_qf');
                     show_stats('National', data);
                 });
+
+
+            // Add event listener to qf type change
+            $('#dropdownListTimeline li a').click(function(){
+                $('#dropdownListTimeline li a.selected_qf').removeClass('selected_qf')
+                $(this).addClass('selected_qf');
+                show_stats('National', data);
+            })
 
         });
 
@@ -571,6 +586,9 @@
             }
             $(".dropdown").find('#dropdownSearch').html('Choose canton' + ' <span class="caret"></span>');
             $(".dropdown").find('#dropdownSearch').val($(this).data('value'));
+
+            // Show national stats
+            show_stats('National', data);
         }
 
         </script>

@@ -12,7 +12,9 @@ function show_stats(type, data){
 	// Seperate data
 	let provinces_data = data[0];
 	console.log('provincial data', provinces_data);
-	let typicals = data.slice(2, data.length);
+	let typicals = data.slice(2, 9);
+	let summary = data.slice(9, data.length);
+	console.log('summary', summary);
 	console.log(data.length);
 	let national_data = data[1];
 	console.log('typicals', typicals);
@@ -28,6 +30,10 @@ function show_stats(type, data){
 		if (type == 'National')
 			// Visualize summary
 			show_hist('National', national_data);
+		else if (type == 'Summary'){
+
+			show_boxplot(type, summary[0]);
+		}
 		else{
 			// Visualize provincial data
 			let provincial_data = {bins: provinces_data['bins'][type],
@@ -40,7 +46,10 @@ function show_stats(type, data){
 	// Show quick flow statistics
 	if (d3.select('input[name="myRadios"]:checked').property('value') == 1){
 		// Show chart if input value is qf
-		show_boxplot(type, typicals);
+		if (type == 'Summary')
+			show_boxplot(type, summary.slice(1, summary.length));
+		else
+			show_boxplot(type, typicals);
 
 	}
 }
@@ -60,7 +69,8 @@ function show_hist(type, data){
 	let hist = Highcharts.chart('hist_div', {
 	  chart: {
 	    type: 'column',
-	    zoomType: 'x'
+	    zoomType: 'x',
+	    height: (11 / 16 * 100) + '%'
 	  },
 	  title: {
 	    text: type + ' baseflow distribution'
@@ -120,31 +130,53 @@ function show_boxplot(type, data){
 	let boxplot_div = stat_elements_div.append('div')
 										.attr('id', 'boxplot_div');
 
-	// Get quick flow type
-	qf_type = $('#dropdownListTimeline li a.selected_qf').attr('value');
-	qf_index = $('#dropdownListTimeline li a.selected_qf').parent().index();
+	let flow_type;
 
-	// Set up data used in this func
-	typicals = data[qf_index];
+	if (d3.select('input[name="myRadios"]:checked').property('value') == 0){
+		// boxplot for base flow
 
-	// Convert data[prov] to array
-	let keys = Object.keys(typicals);
-	for (let i = 0; i < keys.length; i += 1){
-		let key = keys[i];
-		typicals[key] = Object.keys(typicals[key]).map((month, i) => (i, typicals[key][month]));
+		// Define visualize data and visualize type
+		flow_type = 'bf';
+		v_data = Object.keys(data['value']).map((key, i) => (i, data['value'][key]));
+		v_type = 'Baseflow'
 	}
+	else{
+		// Get quick flow type
+		qf_type = $('#dropdownListTimeline li a.selected_qf').attr('value');
+		qf_index = $('#dropdownListTimeline li a.selected_qf').parent().index();
+		flow_type = 'qf';
 
-	let provs = Object.keys(typicals);
+		// Set up data used in this func
+		v_data = data[qf_index];
+
+		v_type = 'Quick flow ' + qf_type;
+
+		if (type == 'Summary'){
+			v_data = Object.keys(v_data['value'])
+							.map((key, i) => (i, v_data['value'][key]));
+		}
+		else{
+			// Convert data[prov] to array
+			let keys = Object.keys(v_data);
+			for (let i = 0; i < keys.length; i += 1){
+				let key = keys[i];
+				v_data[key] = Object.keys(v_data[key]).map((month, i) => (i, v_data[key][month]));
+			}
+		}
+		console.log('data', data);
+		console.log('summary data', v_data);
+	}
 
 	// Default box plot for whole contury
 	Highcharts.chart('boxplot_div', {
 
 	    chart: {
-	        type: 'boxplot'
+	        type: 'boxplot',
+	        height: (11 / 16 * 100) + '%'
 	    },
 
 	    title: {
-	        text: type + ' ' + qf_type + ' Quick Flow per Month '
+	        text: type + ' ' + v_type
 	    },
 
 	    legend: {
@@ -152,16 +184,30 @@ function show_boxplot(type, data){
 	    },
 
 	    xAxis: {
-	        categories: MONTHS,
+	        categories: type == 'Summary' ? PROVINCES : MONTHS,
 	        title: {
-	            text: 'Month'
+	            text: type == 'Summary' ? 'Province' : 'Month'
 	        }
 	    },
 
+		yAxis: (type == 'Summary') ? {min: 0, 
+									 plotLines: [{
+										value: v_data[14][2],
+										color: 'red',
+										width: 1,
+										label: {
+											text: 'National mean: ' + v_data[14][2],
+											align: 'center',
+											style:{
+												color: 'gray'
+											}
+										}
+									}]
+		} : {min: 0},
 	    series: [{
 	        name: 'Observations',
 	        // Data are [low, q1, median, q3, high]
-	        data: typicals[type],
+	        data: type == 'Summary' ? v_data : v_data[type],
 	        tooltip: {
 	            headerFormat: '<em>Quick flow {point.key}</em><br/>'
 	        }
@@ -180,10 +226,16 @@ function show_boxplot(type, data){
 	    }]
 
 	});
+
+	if (type == 'Summary')
+		console.log(v_data);
 }
 // Global variables
 var MONTHS = ['Jan', 'Feb', 'Mat', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
+var PROVINCES = ['Ayeyarwady', 'Bago', 'Chin', 'Kachin', 'Kayah', 'Kayin', 'Magway',
+       'Mandalay', 'Mon', 'Rakhine', 'Sagaing', 'Shan', 'Tanintharyi',
+       'Yangon', 'National'];
 
 function test(){
 	console.log('load stats');

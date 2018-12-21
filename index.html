@@ -103,11 +103,11 @@
               <button id="button-intro" style="position:relative;bottom:20px">Guideline</button>
               <p style="font-size:18px;position:relative;bottom:20px">Choose data</p>
               <div class="inputGroup" style="position:relative;bottom:40px">
-                <input id="radio1" name="myRadios" type="radio" value="0" onclick="toggleBlock()"/>
+                <input id="radio1" name="myRadios" type="radio" value="0" onclick="toggleBlock(0)"/>
                 <label for="radio1">Baseflow</label>
               </div>
               <div class="inputGroup" style="position:relative;bottom:40px">
-                <input id="radio2" name="myRadios" type="radio" value="1" onclick="toggleBlock()"/>
+                <input id="radio2" name="myRadios" type="radio" value="1" onclick="toggleBlock(1)"/>
                 <label for="radio2">Quickflow</label>
               </div>
               <div class="inputGroup" style="position:relative;bottom:40px">
@@ -274,13 +274,14 @@
 
 
         showBlock = true;
-        function toggleBlock() {
+        function toggleBlock(num) {
             console.log('Toggle the block')
-            if(showBlock === true){
+            if(showBlock === true && num == 1){
             /* use jquery to select your DOM elements that has the class 'legend' */
                $('.leaflet-control-layers').hide();
                showBlock= false; 
-            }else{
+            }
+            else if (showBlock === false && num == 0){
                $('.leaflet-control-layers').show();
                showBlock = true; 
             }

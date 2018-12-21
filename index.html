@@ -180,6 +180,14 @@
         <script src='js/search-cantons.js'></script>
         <script src='https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js'></script>
 
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/series-label.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script src="https://code.highcharts.com/modules/export-data.js"></script>
+        <script src="https://code.highcharts.com/modules/histogram-bellcurve.js"></script>
+        <script src="https://code.highcharts.com/highcharts-more.js"></script>
+        <script src='js/stats.js'></script>
+
         <script>
         hideTimelineElements();
 
@@ -291,9 +299,9 @@
         //sidebar.open('home');
 
         // Obtain the data for the statistics_div
-        let stat_div_element = d3.select('#stat_div');
-        console.log(stat_div_element);
-        console.log('default width', stat_div_element.node().getBoundingClientRect().width);
+        let stat_elements_div = d3.select('#stat_div')
+                                    .append('div')
+                                    .attr('id', 'stat_elements_div');
 
         // Initialization of statistics plotting
         const margin = {
@@ -307,12 +315,12 @@
         const height_tick = 18;
         const panel_guide_height = 500;
         const height_total = height_stat + height_brush + height_tick + 100;
-        const width = stat_div_element.node().getBoundingClientRect().width - margin.right - margin.left;
+        const width = stat_elements_div.node().getBoundingClientRect().width - margin.right - margin.left;
         const svg_y =  - height_total - margin.top - margin.bottom - panel_guide_height;
         const color = 'steelblue';
 
         // Build statistics svg
-        stat_svg = d3.select('#stat_div')
+        stat_svg = d3.select('#stat_elements_div')
                         .append('svg')
                         .attr('transform', 'translate(0,' + 0 + ')')
                         .attr('width', width + margin.left + margin.right)
@@ -324,50 +332,9 @@
                                 .attr('height', height_total + margin.top + margin.bottom)
                                 .attr('fill', 'white')
                                 .attr('opacity', 0.6);
-    // Add statistics name
-        stat_svg.append('text')
-                .text('Histogram of Ouput Seasonal Water Yield')
-                .attr('fill', 'black')
-                .attr('font-size', 15)
-                .attr('transform', 'translate(10, 120)');
-
-        // Build statistics brush group
-        let stat_brush_g = stat_svg.append('g')
-                                    .attr('id', 'stat_brush_group')
-                                    .attr('transform',
-                                        'translate(' + margin.left + ',' + (margin.top + height_total - height_brush) + ')');
-
-        // Build brush background rectangle
-        let brush_rect = stat_brush_g.append('rect')
-                                    .attr('id', 'brush_rect')
-                                    .attr('width', width)
-                                    .attr('height', height_brush)
-                                    .attr('stroke-width', 1)
-                                    .attr('stroke', 'red')
-                                    .attr('fill', 'blue')
-                                    .attr('fill-opacity', 0.1);
-
-        // Add brush name
-        stat_svg.append('text')
-                    .text('Brush')
-                    .attr('fill', 'black')
-                    .attr('transform', 'translate(0,' + (height_total + margin.top - height_brush + 10) + ')')
-                    .attr('font-size', 18);
 
 
         createD3LegendBox(stat_svg, 0);
-
-        // Add province name group
-        let prov_name_g = stat_svg.append('g')
-                                    .attr('transform', 'translate(' + (margin.left + width - 20) + ',50)')
-                                    .attr('width', 20 + margin.right);
-
-        prov_name_g.append('text')
-                        .text('Province')
-                        .attr('dx', -50)
-                        .attr('dy', -20)
-                        .attr('text-anchor', 'middle')
-                        .attr('font-size', 25);
 
 
         // Add canton border to the map
@@ -390,15 +357,35 @@
         // load statistics json
         const full_stat = d3.json('./data/prov_data.json').then(d => d);
 
+        // Get typicals data
+        let typicals = d3.json('./data/monthly_qf/typical_provs.json');
+
+        // Get national baseflow data
+        let national_data = d3.json('./data/national_data.json');
+
         let transform = d3.geoTransform({point: project_point});
         let gen_path = d3.geoPath().projection(transform);
 
 
-        Promise.all([map_promise, full_stat]).then((results) => {
+        // Define promise finish variable
+        var promise_finish = false;
+
+        // Define global data container
+        var data;
+
+        Promise.all([map_promise, full_stat, typicals, national_data]).then((results) => {
+
+            // Assign results to data
+            data = results.slice(1, 4);
+
+            // Set promise finish to true
+            promise_finish = true;
+
             let feature = g.selectAll('path')
                             .data(results[0].features)
                             .enter()
-                                .append('path')
+                                .append('path');
+
             feature.attr('d', gen_path)
                     .attr('class', 'province')
                     .attr('fill-opacity', 0)
@@ -413,258 +400,7 @@
                         console.log(d.properties['NAME_1']);
 
                         // Draw the statistics of canton
-
-                        // Get statistics
-
-                        stat_results = results[1];
-                        console.log(stat_results);
-                        let bins = stat_results['bins'][canton];
-                        let bin_size = bins[1] - bins[0];
-                        let counts = stat_results['full_disc_data_counts'][canton];
-
-                        let max_count = Math.max.apply(Math, counts);
-
-
-                        // For better user experience we first zoom in to dense part
-                        let init_index = bins.length / 2 - 20;
-                        let init_length = 40;
-                        let init_max_count = Math.max.apply(Math, counts.slice(init_index, init_index + init_length));
-                        // construct x y and color scale
-                        let y_scale = d3.scaleLinear()
-                                                .domain([0, init_max_count])
-                                                .range([height_stat, 0]);
-
-                        let x_scale = d3.scaleLinear()
-                                                .domain([0, init_length])
-                                                .range([0, width]);
-
-                        let color_scale = d3.scaleLinear()
-                                                .domain([0, max_count])
-                                                .range([d3.rgb(color).brighter(),
-                                                        d3.rgb(color).darker()]);
-                        // Plot the bar chart
-
-                        // Remove old info
-                        stat_svg.select('.stat_group')
-                                    .remove();
-                        prov_name_g.select('#prov_name')
-                                    .remove()
-                        stat_svg.select('#stat_brush_group')
-                                    .remove();
-                        // Plot new info
-                        prov_name_g.append('text')
-                                    .text(canton)
-                                    .attr('font-size', 20)
-                                    .attr('color', 'black')
-                                    .attr('text-anchor', 'end')
-                                    .attr('id', 'prov_name');
-
-                        // Build statistics group
-                        let stat_g = stat_svg.append('g')
-                                        .attr('class', 'stat_group')
-                                        .attr('id', '#stat_group')
-                                        .attr('transform',
-                                            'translate(' + margin.left + ',' + (margin.top + height_total - height_stat - height_tick - height_brush) + ')');
-
-                        // Build statistics plot group
-                        let stat_plot_g = stat_g.append('g')
-                                                    .attr('id', 'stat_plot_group');
-
-                        // Rebuild statistics brush group
-                        let stat_brush_g = stat_svg.append('g')
-                                                    .attr('id', 'stat_brush_group')
-                                                    .attr('transform',
-                                                        'translate(' + margin.left + ',' + (margin.top + height_total - height_brush) + ')');
-
-                        // Rebuild brush background rectangle
-                        let brush_rect = stat_brush_g.append('rect')
-                                                    .attr('id', 'brush_rect')
-                                                    .attr('width', width)
-                                                    .attr('height', height_brush)
-                                                    .attr('stroke-width', 1)
-                                                    .attr('stroke', 'red')
-                                                    .attr('fill', 'blue')
-                                                    .attr('fill-opacity', 0.1);
-
-                        // Plot rectangles
-                        let bar_width = width / init_length;
-
-
-                        let bars = stat_plot_g.selectAll('g')
-                                .data(counts.slice(init_index, init_index + init_length))
-                                .enter()
-                                    .append('g')
-                                    .attr('transform',
-                                        (d, i) => 'translate(' +
-                                         x_scale(i) + ',' + 0 + ')');
-
-                        bars.append('rect')
-                                .attr('y', (d, i) => y_scale(d))
-                                .attr('height', (d, i) =>
-                                    height_stat - y_scale(d))
-                                .attr('width', bar_width)
-                                .attr('fill', (d) => color_scale(d));
-                        console.log(bins.length);
-
-                        // Add axis to the bar chart
-                        let x_axis_scale = d3.scaleLinear()
-                                                    .domain([bins[init_index], bins[init_index + init_length]])
-                                                    .range([0, width]);
-
-                        let x_axis = d3.axisBottom()
-                                            .scale(x_axis_scale);
-
-                        let x_axis_g = stat_g.append('g')
-                                        .attr('transform', 'translate(0,' + height_stat + ')')
-                                        .call(x_axis);
-
-                        // Add x_axis to brush
-                        let brush_scale = d3.scaleLinear()
-                                                .domain([bins[0], bins[bins.length - 1]])
-                                                .range(x_axis_scale.range());
-
-                        let brush_axis = d3.axisBottom()
-                                            .scale(brush_scale);
-
-                        let brush_axis_g = stat_g.append('g')
-                                                    .attr('id', 'brush_axis_g')
-                                                    .attr('transform', 'translate(0,' + (height_stat + 18 + height_brush) + ')')
-                                                    .call(brush_axis);
-
-                        // Add outlier indication
-                        brush_axis_g.append('g')
-                                        .attr('text', '>' + max_count)
-                                        .attr('transform', 'translate(' + width + ',' + (height_stat + height_brush + 25) + ')')
-                                        .attr('font-size', 25)
-                                        .attr('fill', 'black');
-
-                        // Add y_axis
-                        let y_axis = d3.axisLeft()
-                                            .scale(y_scale);
-                        let y_axis_g = stat_g.append('g')
-                                            .attr('id', 'y_axis_g')
-                                            .call(y_axis);
-
-                        // Add color bar
-                        /*
-                        let color_bar = d3.select('body').append('canvas')
-                                                  .attr('width', 200)
-                                                  .attr('height', 50)
-                                                  .attr('id', 'hello');
-                        let color_bar_ctx = color_bar.getContext('2d');
-                        for (let i = 0; i < 255; i++){
-                            color_bar_ctx.beginPath();
-                            let color = 'rgb(100, ' + i + ',' + i + ')';
-
-                            color_bar_ctx.fillStyle = color;
-
-                            color_bar_ctx.fillRect(i * 2, 0, 2, 50);
-                        }
-                        */
-                        let stat_brushX = d3.brushX()
-                                            .extent([[0, 0],
-                                                [width, height_brush]])
-                                            .on('end', function() {
-
-                                                if (!d3.event.sourceEvent)
-                                                    return;
-
-                                                L.DomEvent.stopPropagation(d3.event);
-                                                console.log(d3.event.selection);
-
-                                                let sel_result = d3.event.selection;
-                                                let new_domain;
-                                                let new_index;
-                                                if (sel_result === null){
-                                                    // define restoration to base case event
-                                                    new_domain = [bins[0], bins[bins.length - 1]];
-                                                    new_index = new_domain.map(x => x / bin_size + counts.length / 2);
-                                                }
-                                                else{
-                                                    // define rescale event
-                                                    new_domain = sel_result.map(brush_scale.invert);
-                                                    // convert new domain to interger
-                                                    new_domain = new_domain.map(x => Math.floor(x / bin_size) * bin_size);
-                                                    // get new index
-                                                    new_index = new_domain.map(x => x / bin_size + counts.length / 2);
-                                                    new_index[1] -= 1;
-                                                    console.log(new_domain);
-                                                    console.log(new_index);
-                                                }
-
-                                                // Set up new x-scale and x-axis-scale
-                                                // That is because x are indices while axis are real numbers
-                                                x_axis_scale.domain(new_domain)
-                                                            .ticks(new_index[1] - new_index[0] + 1);
-                                                x_scale.domain([0, new_index[1] - new_index[0] + 1]);
-
-                                                console.log("x_scale dom", x_scale.domain());
-                                                // Set up new x-axis
-                                                x_axis.scale(x_axis_scale);
-                                                x_axis_g.call(x_axis);
-
-                                                // Set up new y scale
-                                                max_count = d3.max(counts.slice(new_index[0], new_index[1]));
-                                                console.log(max_count);
-                                                y_scale.domain([0, max_count]);
-                                                y_axis.scale(y_scale);
-                                                y_axis_g.call(y_axis);
-
-                                                // Create new bar width
-                                                bar_width = width / (new_index[1] - new_index[0] + 1);
-
-                                                // Clear old rectangles
-                                                stat_plot_g.selectAll('g')
-                                                            .data([])
-                                                            .exit()
-                                                            .remove();
-
-                                                // Add new rectangles
-                                                stat_plot_g.selectAll('g')
-                                                            .data(counts.slice(new_index[0],
-                                                                        new_index[1]))
-                                                            .enter()
-                                                                .append('g')
-                                                                .attr('transform', (d, i) => 'translate(' + x_scale(i) + ',0)');
-                                                console.log(counts.slice(new_index[0], new_index[1]).length);
-                                                console.log(new_domain[1] - new_domain[0]);
-
-                                                stat_plot_g.selectAll('g')
-                                                    .append('rect')
-                                                    .attr('y', (d) => y_scale(d))
-                                                    .attr('width', bar_width )
-                                                    .attr('height', (d) => height_stat - y_scale(d))
-                                                    .attr('fill', (d) => color_scale(d));
-
-
-                                                // Restore map functions
-                                                map.dragging.enable();
-                                                map.touchZoom.enable();
-                                                map.doubleClickZoom.enable();
-                                                map.scrollWheelZoom.enable();
-                                                map.boxZoom.enable();
-                                                map.keyboard.enable();
-                                                if (map.tap) map.tap.enable();
-                                                document.getElementById('map').style.cursor='grab';
-
-                                            });
-
-                        // Prevent map from moving while we are focused on brushing
-
-                        stat_brushX.on('brush', function(){
-                                                    // Keep the map static
-                                                    map.dragging.disable();
-                                                    map.touchZoom.disable();
-                                                    map.doubleClickZoom.disable();
-                                                    map.scrollWheelZoom.disable();
-                                                    map.boxZoom.disable();
-                                                    map.keyboard.disable();
-                                                    if (map.tap) map.tap.disable();
-                                                    document.getElementById('map').style.cursor='default';
-                                                });
-
-                        stat_brush_g.call(stat_brushX);
-
+                        show_stats(canton, data);
                     });
 
             feature.on('mouseover', function(d, i){
@@ -703,6 +439,15 @@
                 g.attr('transform', 'translate(' + -top_left[0] + ',' + -top_left[1] + ')');
                 feature.attr('d', gen_path);
             });
+
+            // Show national stats
+            show_stats('National', data);
+
+            // Add event listener to flow type change
+            d3.selectAll("input[name='myRadios']")
+                .on('change', function(){
+                    show_stats('National', data);
+                });
 
         });
 
@@ -815,6 +560,12 @@
                 console.log('new cantonmarker');
                 CantonMarker.addTo(map);
 
+                // Show stats for selected province
+                if (!promise_finish)
+                    alert('Loading data :(');
+                else{
+                    show_stats(canton_search, data);
+                }
             }
             else if (!canton_search) {
                 alert("Please input the canton name")

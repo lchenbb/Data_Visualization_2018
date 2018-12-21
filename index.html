@@ -103,11 +103,11 @@
               <button id="button-intro" style="position:relative;bottom:20px">Guideline</button>
               <p style="font-size:18px;position:relative;bottom:20px">Choose data</p>
               <div class="inputGroup" style="position:relative;bottom:40px">
-                <input id="radio1" name="myRadios" type="radio" value="0"/>
+                <input id="radio1" name="myRadios" type="radio" value="0" onclick="toggleBlock()"/>
                 <label for="radio1">Baseflow</label>
               </div>
               <div class="inputGroup" style="position:relative;bottom:40px">
-                <input id="radio2" name="myRadios" type="radio" value="1"/>
+                <input id="radio2" name="myRadios" type="radio" value="1" onclick="toggleBlock()"/>
                 <label for="radio2">Quickflow</label>
               </div>
               <div class="inputGroup" style="position:relative;bottom:40px">
@@ -264,6 +264,19 @@
         };
         title.addTo(map);
 
+
+        showBlock = true;
+        function toggleBlock() {
+            console.log('Toggle the block')
+            if(showBlock === true){
+            /* use jquery to select your DOM elements that has the class 'legend' */
+               $('.leaflet-control-layers').hide();
+               showBlock= false; 
+            }else{
+               $('.leaflet-control-layers').show();
+               showBlock = true; 
+            }
+        }
 
 
          // Use the custom grouped layer control, not "L.control.layers"
@@ -1035,6 +1048,7 @@ function showSlidesauto() {
   setTimeout(showSlides, 5000); // Change image every 2 seconds
 }
 </script>
+
 
 
 

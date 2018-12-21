@@ -73,7 +73,7 @@ function show_hist(type, data){
 	    height: (12 / 16 * 100) + '%'
 	  },
 	  title: {
-	    text: type + ' baseflow distribution'
+	    text: type + ' baseflow change distribution'
 	  },
 	  subtitle: {
 	    text: ''
@@ -81,7 +81,7 @@ function show_hist(type, data){
 	  xAxis: {
 	    categories: Object.keys(data['bins']).map((key, i) => (i, data['bins'][key])),
 	    title: {
-	    	text: 'Baseflow'
+	    	text: 'Baseflow change'
 	    },
 	    tickInterval: 1,
 	    crosshair: true
@@ -138,7 +138,7 @@ function show_boxplot(type, data){
 		// Define visualize data and visualize type
 		flow_type = 'bf';
 		v_data = Object.keys(data['value']).map((key, i) => (i, data['value'][key]));
-		v_type = 'Baseflow'
+		v_type = 'Baseflow change'
 	}
 	else{
 		// Get quick flow type
@@ -264,11 +264,7 @@ var PROVINCES = ['Ayeyarwady', 'Bago', 'Chin', 'Kachin', 'Kayah', 'Kayin', 'Magw
        'Yangon', 'National'];
 
 // Analysis content
-var BASEFLOW_ANALYSIS = 'Baseflow analysis:\n Baseflow is contributing to dry-season water availability and thus regarded as an important indicator of sufficiency of water supply.\
-  The national distribution of baseflow in Myanmar is ‘High among coastal area and low among inland area’ in general. One interesting point is that the middle provinces such as Magway, Mandalay and Bago have even lower baseflow value than the ones that are more "inland" such as Kachin. One possible explanation resides in the altitude and temperature difference. \
-  While provinces like Kachin have higher altitude and lower temperature, the above mentioned middle provinces are located in the center plains of Myanmar which have higher temperature and thus more evaporation.'
-
-var BASEFLOW_SUMMARY_ANALYSIS = `<p style="font-size:200%;">Baseflow analysis:</p>
+var BASEFLOW_SUMMARY_ANALYSIS = `<p style="font-size:200%;">Baseflow change analysis:</p>
 								<p style="font-size:130%">Baseflow is contributing to dry-season water availability\
 							 	and thus regarded as an important indicator of sufficiency of water supply.</p>
 							 	<p style="font-size:130%">The national distribution of baseflow in Myanmar is\

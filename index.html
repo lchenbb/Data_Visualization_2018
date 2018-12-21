@@ -67,7 +67,9 @@
         .split2 {
             float:left !important;
             height: 100% !important;
+            overflow: auto;
             min-height: 100% !important;
+            max-height: 100% !important;
             width: 41.66% !important;
             border: 1px solid black;
         }
@@ -107,7 +109,7 @@
               <p style="font-size:18px;position:relative;bottom:20px">Choose data</p>
               <div class="inputGroup" style="position:relative;bottom:40px">
                 <input id="radio1" name="myRadios" type="radio" value="0" onclick="toggleBlock(0)"/>
-                <label for="radio1">Baseflow</label>
+                <label for="radio1">Baseflow Change</label>
               </div>
               <div class="inputGroup" style="position:relative;bottom:40px">
                 <input id="radio2" name="myRadios" type="radio" value="1" onclick="toggleBlock(1)"/>
@@ -171,7 +173,7 @@
           </div>
           <div id="stat_div" class="split2" style="background-color:#A9A9A9">
             <p style="font-size:20px">Statistics</p>
-            <div id='stat_elements_div' style='max-height:100%; overflow: auto'></div>>
+            <div id='stat_elements_div' style='max-height:100%'></div>>
           </div>
           <div id="map" class="sidebar-map split3" style="right:0;z-index:1;"></div>
 
@@ -242,8 +244,8 @@
         // Map
         var map = L.map('map', {
             center: [19.2436590371, 96.8861699425],
-            zoom: 6,
-            minZoom: 6,
+            zoom: 5,
+            minZoom: 5,
             maxZoom: 9,
             layers: [osm]
         });
@@ -290,14 +292,14 @@
             return this._div;
         };
         legend.update = function() {
-            this._div.innerHTML = '<div class="leaflet-control-layers leaflet-control-layers-expanded" id="legendBox" style="width:355px;height:100px;background:gray"></div>';
+            this._div.innerHTML = '<div class="leaflet-control-layers leaflet-control-layers-expanded" id="legendBox" style="width:300px;height:100px;background:gray"></div>';
         };
         legend.addTo(map);
 
         var legendSVG = d3.select('#legendBox')
                                 .append('svg')
                                 .attr('transform', 'translate(0,' + 0 + ')')
-                                .attr('width', 355)
+                                .attr('width', 300)
                                 .attr('height', 100);
         showBlock = true;
         function toggleBlock(num) {
@@ -644,7 +646,7 @@
         function resetInput(){
             document.getElementById("myInput").value = "";
 
-            map.flyTo([19.2436590371, 96.8861699425], 6);
+            map.flyTo([19.2436590371, 96.8861699425], 5);
             if (CantonMarker) {
                 map.removeLayer(CantonMarker);
             }
@@ -659,7 +661,7 @@
         function showSummary(){
             document.getElementById('myInput').value = '';
 
-            map.flyTo([19.2436590371, 96.8861699425], 6);
+            map.flyTo([19.2436590371, 96.8861699425], 5);
             if (CantonMarker) {
                 map.removeLayer(CantonMarker);
             }

@@ -15,4 +15,5 @@ is here to help.
 Feel free to take a look at the [process book](https://github.com/lchenbb/Data_Visualization_2018/blob/master/DVProcessBook.pdf)
 to know how the implementation decisions are made.
 
+This is a joint work by [Fengyu Cai](fengyu.cai@epfl.ch), [Liangwei Chen](liangwei.chen@epfl.ch) and [Claudio Loureiro](claudio.Loureiro@epfl.ch) from EPFL. Feel free to drop us an email if you may have any question or suggestion.
 
